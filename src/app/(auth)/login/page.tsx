@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -15,21 +15,19 @@ function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam === 'auth-callback-failed') {
-      setError('Google authentication failed. Please check that Google Sign-in is enabled in your Supabase project (Authentication > Providers > Google) and that your Google OAuth Credentials are correct.');
-    } else if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-    }
-  }, [searchParams]);
+  const errorParam = searchParams.get('error');
+  const error = submitError || (
+    errorParam === 'auth-callback-failed'
+      ? 'Google authentication failed. Please check that Google Sign-in is enabled in your Supabase project (Authentication > Providers > Google) and that your Google OAuth Credentials are correct.'
+      : errorParam ? decodeURIComponent(errorParam) : null
+  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setSubmitError(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -42,7 +40,7 @@ function LoginContent() {
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+      setSubmitError(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -58,7 +56,7 @@ function LoginContent() {
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message || 'Failed to authenticate with Google.');
+      setSubmitError(err.message || 'Failed to authenticate with Google.');
     }
   };
 
@@ -171,7 +169,7 @@ function LoginContent() {
           </button>
 
           <p className="text-center text-xs text-muted-foreground">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="font-semibold text-primary hover:underline">
               Sign up
             </Link>

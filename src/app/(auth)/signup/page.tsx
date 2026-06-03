@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Sparkles, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 function SignupContent() {
-  const router = useRouter();
   const supabase = createClient();
   const searchParams = useSearchParams();
   
@@ -16,22 +15,20 @@ function SignupContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
-  useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam === 'auth-callback-failed') {
-      setError('Google authentication failed. Please check that Google Sign-in is enabled in your Supabase project (Authentication > Providers > Google) and that your Google OAuth Credentials are correct.');
-    } else if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-    }
-  }, [searchParams]);
+  const errorParam = searchParams.get('error');
+  const error = submitError || (
+    errorParam === 'auth-callback-failed'
+      ? 'Google authentication failed. Please check that Google Sign-in is enabled in your Supabase project (Authentication > Providers > Google) and that your Google OAuth Credentials are correct.'
+      : errorParam ? decodeURIComponent(errorParam) : null
+  );
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setSubmitError(null);
     setSuccess(false);
 
     try {
@@ -49,7 +46,7 @@ function SignupContent() {
       
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to sign up. Please try again.');
+      setSubmitError(err.message || 'Failed to sign up. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +62,7 @@ function SignupContent() {
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message || 'Failed to authenticate with Google.');
+      setSubmitError(err.message || 'Failed to authenticate with Google.');
     }
   };
 
