@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Sparkles, Star, Calendar, Music, Gift, Image as ImageIcon, Send, MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Heart, Sparkles, Star, Calendar, Music, Gift, Send } from 'lucide-react';
 
 interface PreviewOccasion {
   name: string;
@@ -266,7 +266,7 @@ export default function LivePreview() {
                   >
                     <div className={`absolute -right-2 -bottom-2 text-6xl font-serif font-black opacity-5 ${activeTheme.text}`}>“</div>
                     <p className={`text-xs italic leading-relaxed font-serif relative z-10 ${activeTheme.text}`}>
-                      "{activeOccasion.quote}"
+                      &quot;{activeOccasion.quote}&quot;
                     </p>
                     <p className={`text-[9px] font-bold tracking-widest relative z-10 uppercase ${activeTheme.subText}`}>
                       — {activeOccasion.author}

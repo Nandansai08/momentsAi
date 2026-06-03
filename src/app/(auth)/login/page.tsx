@@ -39,8 +39,9 @@ function LoginContent() {
       
       router.push('/dashboard');
       router.refresh();
-    } catch (err: any) {
-      setSubmitError(err.message || 'Failed to sign in. Please check your credentials.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sign in. Please check your credentials.';
+      setSubmitError(message);
     } finally {
       setLoading(false);
     }
@@ -55,8 +56,9 @@ function LoginContent() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setSubmitError(err.message || 'Failed to authenticate with Google.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to authenticate with Google.';
+      setSubmitError(message);
     }
   };
 

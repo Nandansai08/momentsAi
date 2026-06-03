@@ -28,8 +28,9 @@ export default function ResetPasswordPage() {
       if (error) throw error;
       
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send recovery email. Please check the address.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send recovery email. Please check the address.';
+      setError(message);
     } finally {
       setLoading(false);
     }

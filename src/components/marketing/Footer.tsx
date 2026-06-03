@@ -15,7 +15,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="text-sm leading-relaxed text-zinc-500">
-            Create beautifully personalized, emotional websites for birthdays, anniversaries, graduations, and life's special milestones in minutes.
+            Create beautifully personalized, emotional websites for birthdays, anniversaries, graduations, and life&apos;s special milestones in minutes.
           </p>
         </div>
 

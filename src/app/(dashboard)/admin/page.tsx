@@ -17,13 +17,6 @@ export default function AdminDashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  interface UserProfile {
-    id: string;
-    full_name: string | null;
-    plan_type: string;
-    created_at: string;
-  }
-
   interface MomentListItem {
     id: string;
     slug: string;
@@ -38,7 +31,6 @@ export default function AdminDashboardPage() {
   }
 
   // Admin listings
-  const [users, setUsers] = useState<UserProfile[]>([]);
   const [moments, setMoments] = useState<MomentListItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -70,11 +62,7 @@ export default function AdminDashboardPage() {
           .select('*, profiles(full_name, plan_type), analytics(views)')
           .order('created_at', { ascending: false });
 
-        setUsers(profiles || [
-          { id: '1', full_name: 'Sarah Jenkins', plan_type: 'free', created_at: '2026-05-12' },
-          { id: '2', full_name: 'Alex Rivera', plan_type: 'free', created_at: '2026-05-24' },
-          { id: '3', full_name: 'Kabir Mehra', plan_type: 'free', created_at: '2026-06-01' }
-        ]);
+
 
         setMoments(allMoments || [
           { id: '101', slug: 'sarah-birthday', recipient_name: 'Sarah', occasion: 'birthday', is_published: true, profiles: { full_name: 'Alex Rivera' }, analytics: [{ views: 42 }] },

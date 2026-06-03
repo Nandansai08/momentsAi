@@ -59,7 +59,7 @@ interface MomentData {
   ai_title?: string | null;
   ai_story_narrative?: string | null;
   ai_letter?: string | null;
-  ai_timeline?: Array<{ date?: string; title: string; description: string }> | null;
+  ai_timeline?: Array<{ date?: string; title: string; description: string; icon?: string }> | null;
   ai_quotes?: Array<{ quote: string; author: string }> | null;
   ai_poem?: string | null;
   themes?: { slug: string } | null;
@@ -233,12 +233,11 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const [timeUnlocked, setTimeUnlocked] = useState(true);
 
   useEffect(() => {
-    if (!initialMoment.unlock_date) {
-      setTimeUnlocked(true);
-      return;
-    }
+    if (!initialMoment.unlock_date) return;
     const isLocked = new Date(initialMoment.unlock_date).getTime() > Date.now();
-    setTimeUnlocked(!isLocked);
+    setTimeout(() => {
+      setTimeUnlocked(!isLocked);
+    }, 0);
   }, [initialMoment.unlock_date]);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -264,9 +263,15 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Dynamic Milestone Counters
-  const milestoneDays = initialMoment.event_date 
-    ? Math.floor(Math.abs(Date.now() - new Date(initialMoment.event_date).getTime()) / (1000 * 60 * 60 * 24)) 
-    : 0;
+  const [milestoneDays, setMilestoneDays] = useState(0);
+
+  useEffect(() => {
+    if (!initialMoment.event_date) return;
+    const days = Math.floor(Math.abs(Date.now() - new Date(initialMoment.event_date).getTime()) / (1000 * 60 * 60 * 24));
+    setTimeout(() => {
+      setMilestoneDays(days);
+    }, 0);
+  }, [initialMoment.event_date]);
 
   // Fire view analytics increment once on load
   useEffect(() => {
@@ -302,12 +307,15 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
 
   // Calculate unlock date countdown
   useEffect(() => {
-    if (!initialMoment.unlock_date) return;
+    const unlockDate = initialMoment.unlock_date;
+    if (!unlockDate) return;
 
     function updateTimer() {
-      const difference = new Date(initialMoment.unlock_date).getTime() - Date.now();
+      const targetDate = initialMoment.unlock_date;
+      if (!targetDate) return;
+      const difference = new Date(targetDate).getTime() - Date.now();
       if (difference <= 0) {
-        setTimeUnlocked(true);
+        setTimeUnlocked(prev => !prev ? true : prev);
         confetti({ particleCount: 150, spread: 80 });
         return;
       }
@@ -321,8 +329,11 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
     }
 
     const interval = setInterval(updateTimer, 1000);
-    updateTimer();
-    return () => clearInterval(interval);
+    const timer = setTimeout(updateTimer, 0);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
   }, [initialMoment.unlock_date]);
 
 
@@ -364,6 +375,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
     setIsSubmittingGuestbook(true);
 
     const newEntry = {
+      id: Math.random().toString(),
       name: guestName.trim(),
       message: guestMsg.trim(),
       created_at: new Date().toISOString()
@@ -799,7 +811,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
               {/* Dynamic vertical glowing gradient track line */}
               <div className="absolute -left-[2px] top-1.5 bottom-1.5 w-0.5 bg-gradient-to-b from-primary via-pink-500 to-amber-400" />
 
-              {initialMoment.ai_timeline.map((item: { date?: string; title: string; description: string }, idx: number) => (
+              {initialMoment.ai_timeline.map((item: { date?: string; title: string; description: string; icon?: string }, idx: number) => (
                 <motion.div 
                   key={idx}
                   initial={{ opacity: 0, x: -15 }}

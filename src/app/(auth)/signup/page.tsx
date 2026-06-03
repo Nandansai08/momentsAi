@@ -45,8 +45,9 @@ function SignupContent() {
       if (error) throw error;
       
       setSuccess(true);
-    } catch (err: any) {
-      setSubmitError(err.message || 'Failed to sign up. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sign up. Please try again.';
+      setSubmitError(message);
     } finally {
       setLoading(false);
     }
@@ -61,8 +62,9 @@ function SignupContent() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setSubmitError(err.message || 'Failed to authenticate with Google.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to authenticate with Google.';
+      setSubmitError(message);
     }
   };
 
