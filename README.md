@@ -13,7 +13,7 @@ Built with design standards inspired by Apple, Stripe, and Linear, the platform 
 
 ### 📊 Badges
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build Status](https://github.com/Nandansai08/momentsAi/workflows/CI/badge.svg)](https://github.com/Nandansai08/momentsAi/actions)
+[![Build Status](https://github.com/Nandansai08/momentsAi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Nandansai08/momentsAi/actions)
 [![GitHub issues](https://img.shields.io/github/issues/Nandansai08/momentsAi)](https://github.com/Nandansai08/momentsAi/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 [![Good First Issue](https://img.shields.io/badge/Good%20First%20Issue-active-orange)](docs/good_first_issues.md)
