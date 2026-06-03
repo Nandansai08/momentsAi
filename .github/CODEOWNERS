@@ -1,0 +1,9 @@
+# Default owners for all files in the repository
+*       @Nandansai08
+
+# Backend routes and database migrations
+/src/app/api/        @Nandansai08
+/supabase/           @Nandansai08
+
+# GitHub Actions configurations
+/.github/workflows/  @Nandansai08

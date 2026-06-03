@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Sparkles, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
   const supabase = createClient();
+  const searchParams = useSearchParams();
   
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,6 +18,15 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'auth-callback-failed') {
+      setError('Google authentication failed. Please check that Google Sign-in is enabled in your Supabase project (Authentication > Providers > Google) and that your Google OAuth Credentials are correct.');
+    } else if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+    }
+  }, [searchParams]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,5 +217,17 @@ export default function SignupPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   );
 }

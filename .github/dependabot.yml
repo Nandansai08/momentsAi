@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    labels:
+      - "chore"
+      - "dependencies"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    labels:
+      - "chore"
+      - "dependencies"
