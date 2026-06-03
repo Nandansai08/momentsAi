@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { CreditCard, Check, Sparkles, Receipt, HelpCircle } from 'lucide-react';
+import { Check, Sparkles, Receipt } from 'lucide-react';
 
 export default function BillingPage() {
   return (

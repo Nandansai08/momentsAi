@@ -8,8 +8,6 @@ import {
   ExternalLink, 
   Trash2, 
   Eye, 
-  Gift, 
-  Heart, 
   Sparkles,
   Copy,
   Check,
@@ -26,7 +24,24 @@ import { formatDate } from '@/lib/utils';
 
 export default function MyWebsitesPage() {
   const supabase = createClient();
-  const [moments, setMoments] = useState<any[]>([]);
+  interface MomentItem {
+    id: string;
+    occasion: string;
+    slug: string;
+    recipient_name: string;
+    sender_name: string;
+    custom_title?: string;
+    event_date?: string;
+    created_at: string;
+    is_password_protected?: boolean;
+    theme_slug?: string;
+    analytics?: Array<{
+      views: number;
+      unique_visitors: number;
+    }>;
+  }
+
+  const [moments, setMoments] = useState<MomentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,7 +83,7 @@ export default function MyWebsitesPage() {
 
       if (error) throw error;
       setMoments(moments.filter(m => m.id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete moment. Please try again.");
     }
   };
@@ -183,8 +198,8 @@ export default function MyWebsitesPage() {
               <option value="graduation">Graduations</option>
               <option value="farewell">Farewells</option>
               <option value="wedding">Weddings</option>
-              <option value="mothers_day">Mother's Day</option>
-              <option value="fathers_day">Father's Day</option>
+              <option value="mothers_day">Mother&apos;s Day</option>
+              <option value="fathers_day">Father&apos;s Day</option>
               <option value="custom">Custom Moments</option>
             </select>
           </div>
@@ -229,7 +244,6 @@ export default function MyWebsitesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredMoments.map((moment) => {
             const views = moment.analytics?.[0]?.views || 0;
-            const unique = moment.analytics?.[0]?.unique_visitors || 0;
             
             return (
               <motion.div 

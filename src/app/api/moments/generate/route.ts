@@ -145,8 +145,9 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, slug: momentRecord.slug });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Generator endpoint failed:", err);
-    return NextResponse.json({ error: err.message || 'Internal server error.' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Internal server error.';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

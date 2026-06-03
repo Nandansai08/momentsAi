@@ -3,21 +3,43 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BarChart3, 
   Eye, 
   Users, 
   Share2, 
   Smartphone, 
   Monitor, 
   Tablet,
-  TrendingUp,
-  MessageSquare
+  TrendingUp
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
+interface AnalyticsStats {
+  totalViews: number;
+  totalUnique: number;
+  totalShares: number;
+  devices: {
+    mobile: number;
+    desktop: number;
+    tablet: number;
+  };
+  sources: {
+    direct: number;
+    whatsapp: number;
+    social: number;
+  };
+}
+
+interface AnalyticsRow {
+  views: number | null;
+  unique_visitors: number | null;
+  shares: number | null;
+  device_types: { mobile: number; desktop: number; tablet: number } | null;
+  traffic_sources: { direct: number; whatsapp: number; social: number } | null;
+}
+
 export default function AnalyticsPage() {
   const supabase = createClient();
-  const [stats, setStats] = useState<any>({
+  const [stats, setStats] = useState<AnalyticsStats>({
     totalViews: 0,
     totalUnique: 0,
     totalShares: 0,
@@ -56,7 +78,7 @@ export default function AnalyticsPage() {
             let dev = { mobile: 0, desktop: 0, tablet: 0 };
             let src = { direct: 0, whatsapp: 0, social: 0 };
 
-            analytics.forEach((item: any) => {
+            analytics.forEach((item: AnalyticsRow) => {
               views += item.views || 0;
               unique += item.unique_visitors || 0;
               shares += item.shares || 0;

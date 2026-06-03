@@ -1,18 +1,14 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { 
   ShieldAlert, 
   Users, 
   Globe, 
-  TrendingUp, 
   Trash2, 
-  Flag, 
   DollarSign, 
-  Search,
-  CheckCircle,
-  Eye
+  Search, 
+  CheckCircle 
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -21,9 +17,29 @@ export default function AdminDashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   
+  interface UserProfile {
+    id: string;
+    full_name: string | null;
+    plan_type: string;
+    created_at: string;
+  }
+
+  interface MomentListItem {
+    id: string;
+    slug: string;
+    recipient_name: string;
+    occasion: string;
+    is_published: boolean;
+    profiles: {
+      full_name: string | null;
+      plan_type?: string;
+    } | null;
+    analytics: Array<{ views: number }> | null;
+  }
+
   // Admin listings
-  const [users, setUsers] = useState<any[]>([]);
-  const [moments, setMoments] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [moments, setMoments] = useState<MomentListItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   
   const [stats, setStats] = useState({
@@ -72,7 +88,7 @@ export default function AdminDashboardPage() {
           activeSubscriptions: 28
         });
 
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("Admin verification error:", err);
       } finally {
         setLoading(false);
@@ -93,7 +109,7 @@ export default function AdminDashboardPage() {
 
       if (error) throw error;
       setMoments(moments.filter(m => m.id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete moment.");
     }
   };
@@ -107,7 +123,7 @@ export default function AdminDashboardPage() {
 
       if (error) throw error;
       setMoments(moments.map(m => m.id === id ? { ...m, is_published: !currentVal } : m));
-    } catch (err) {
+    } catch {
       alert("Failed to update status.");
     }
   };

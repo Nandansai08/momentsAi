@@ -14,7 +14,6 @@ import {
   LogOut, 
   Menu, 
   X,
-  User,
   ShieldAlert
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -27,7 +26,13 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
+  interface DashboardUserProfile {
+    full_name: string | null;
+    plan_type: string;
+    avatar_url?: string | null;
+  }
+
+  const [profile, setProfile] = useState<DashboardUserProfile | null>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {

@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { User, Mail, Shield, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Mail, Save, CheckCircle, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+
+interface UserProfileData {
+  id?: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  plan_type?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export default function SettingsPage() {
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>({ full_name: '', avatar_url: '' });
+  const [profile, setProfile] = useState<UserProfileData>({ full_name: '', avatar_url: '' });
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,8 +69,9 @@ export default function SettingsPage() {
 
       if (error) throw error;
       setFeedback({ type: 'success', message: 'Profile updated successfully!' });
-    } catch (err: any) {
-      setFeedback({ type: 'error', message: err.message || 'Failed to update profile.' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update profile.';
+      setFeedback({ type: 'error', message });
     } finally {
       setSaving(false);
     }

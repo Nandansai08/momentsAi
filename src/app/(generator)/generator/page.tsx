@@ -8,9 +8,7 @@ import {
   Gift, 
   Heart, 
   Users, 
-  Calendar, 
   Music, 
-  Image as ImageIcon, 
   ArrowLeft, 
   ArrowRight,
   Upload,
@@ -20,11 +18,8 @@ import {
   Plus,
   X,
   FileText,
-  Lock,
-  Send,
   Eye,
-  Trash2,
-  AlertCircle
+  Trash2
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -282,7 +277,6 @@ export default function GeneratorPage() {
   // Lists
   const [memoriesInput, setMemoriesInput] = useState('');
   const [memories, setMemories] = useState<string[]>([]);
-  const [achievementsInput, setAchievementsInput] = useState('');
   const [achievements, setAchievements] = useState<string[]>([]);
 
   // Files
@@ -291,7 +285,7 @@ export default function GeneratorPage() {
 
   // Styling / Toggles
   const [themeId, setThemeId] = useState('romantic');
-  const [sections, setSections] = useState({
+  const [sections] = useState({
     music: true,
     gallery: true,
     timeline: true,
@@ -305,7 +299,7 @@ export default function GeneratorPage() {
     share: true
   });
   
-  const [effects, setEffects] = useState({
+  const [effects] = useState({
     confetti: true,
     fireworks: false,
     floating_hearts: true,
@@ -326,18 +320,20 @@ export default function GeneratorPage() {
       const draft = localStorage.getItem('momentsai_wizard_draft');
       if (draft) {
         const parsed = JSON.parse(draft);
-        if (parsed.occasion) setOccasion(parsed.occasion);
-        if (parsed.recipientName) setRecipientName(parsed.recipientName);
-        if (parsed.senderName) setSenderName(parsed.senderName);
-        if (parsed.relationship) setRelationship(parsed.relationship);
-        if (parsed.eventDate) setEventDate(parsed.eventDate);
-        if (parsed.customTitle) setCustomTitle(parsed.customTitle);
-        if (parsed.personalMessage) setPersonalMessage(parsed.personalMessage);
-        if (parsed.memories) setMemories(parsed.memories);
-        if (parsed.achievements) setAchievements(parsed.achievements);
-        if (parsed.themeId) setThemeId(parsed.themeId);
-        if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
-        if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
+        setTimeout(() => {
+          if (parsed.occasion) setOccasion(parsed.occasion);
+          if (parsed.recipientName) setRecipientName(parsed.recipientName);
+          if (parsed.senderName) setSenderName(parsed.senderName);
+          if (parsed.relationship) setRelationship(parsed.relationship);
+          if (parsed.eventDate) setEventDate(parsed.eventDate);
+          if (parsed.customTitle) setCustomTitle(parsed.customTitle);
+          if (parsed.personalMessage) setPersonalMessage(parsed.personalMessage);
+          if (parsed.memories) setMemories(parsed.memories);
+          if (parsed.achievements) setAchievements(parsed.achievements);
+          if (parsed.themeId) setThemeId(parsed.themeId);
+          if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
+          if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
+        }, 0);
       }
     } catch (e) {
       console.warn("Failed to restore drafts", e);
@@ -389,16 +385,7 @@ export default function GeneratorPage() {
     setMemories(memories.filter((_, i) => i !== idx));
   };
 
-  const addAchievement = () => {
-    if (achievementsInput.trim()) {
-      setAchievements([...achievements, achievementsInput.trim()]);
-      setAchievementsInput('');
-    }
-  };
 
-  const removeAchievement = (idx: number) => {
-    setAchievements(achievements.filter((_, i) => i !== idx));
-  };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -507,8 +494,9 @@ export default function GeneratorPage() {
       localStorage.removeItem('momentsai_wizard_draft');
       router.push(`/m/${responseData.slug}`);
       router.refresh();
-    } catch (err: any) {
-      alert(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong.";
+      alert(message);
       setLoading(false);
     }
   };

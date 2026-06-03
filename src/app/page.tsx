@@ -7,7 +7,6 @@ import {
   ArrowRight, 
   Gift, 
   Heart, 
-  Star, 
   GraduationCap, 
   Users, 
   Smile, 
@@ -17,7 +16,6 @@ import {
   Share2, 
   Check, 
   HelpCircle,
-  Clock,
   Sparkle
 } from 'lucide-react';
 import Navbar from '@/components/marketing/Navbar';
@@ -302,7 +300,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="p-8 rounded-[32px] border border-zinc-100 bg-[#faf9f6]/40 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/20 transition-all duration-300 flex flex-col justify-between">
               <p className="text-sm leading-relaxed text-zinc-700 font-medium italic">
-                "I generated a surprise tribute for my parents' 30th anniversary. Seeing their reaction to the compiled memories timeline and old photos was completely priceless. The best surprise ever!"
+                &quot;I generated a surprise tribute for my parents&apos; 30th anniversary. Seeing their reaction to the compiled memories timeline and old photos was completely priceless. The best surprise ever!&quot;
               </p>
               <div className="flex items-center gap-3.5 pt-6 border-t border-zinc-100 mt-6">
                 <div className="w-10 h-10 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center font-black border border-violet-100">R</div>
@@ -315,7 +313,7 @@ export default function Home() {
 
             <div className="p-8 rounded-[32px] border border-zinc-100 bg-[#faf9f6]/40 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/20 transition-all duration-300 flex flex-col justify-between">
               <p className="text-sm leading-relaxed text-zinc-700 font-medium italic">
-                "My fiancée cried when I sent her this proposal website. The Cosmic theme with the countdown timer, embedded music track, and letter timeline of our story was absolutely magical."
+                &quot;My fiancée cried when I sent her this proposal website. The Cosmic theme with the countdown timer, embedded music track, and letter timeline of our story was absolutely magical.&quot;
               </p>
               <div className="flex items-center gap-3.5 pt-6 border-t border-zinc-100 mt-6">
                 <div className="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center font-black border border-pink-100">M</div>
@@ -328,7 +326,7 @@ export default function Home() {
 
             <div className="p-8 rounded-[32px] border border-zinc-100 bg-[#faf9f6]/40 hover:bg-white hover:shadow-xl hover:shadow-zinc-200/20 transition-all duration-300 flex flex-col justify-between">
               <p className="text-sm leading-relaxed text-zinc-700 font-medium italic">
-                "We made a collaborative farewell wall for our college group using the guestbook reactions. It was incredibly clean, easy to load on mobile, and brought back all our inside jokes."
+                &quot;We made a collaborative farewell wall for our college group using the guestbook reactions. It was incredibly clean, easy to load on mobile, and brought back all our inside jokes.&quot;
               </p>
               <div className="flex items-center gap-3.5 pt-6 border-t border-zinc-100 mt-6">
                 <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center font-black border border-amber-100">N</div>

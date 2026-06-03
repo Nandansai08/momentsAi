@@ -7,8 +7,6 @@ import {
   Sparkles, 
   Music, 
   Play, 
-  Pause, 
-  Calendar, 
   Clock, 
   Share2, 
   Lock, 
@@ -17,17 +15,74 @@ import {
   X, 
   Copy, 
   Check, 
-  Mail,
-  MessageSquare
+  Mail
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 
+interface MomentData {
+  id: string;
+  slug: string;
+  occasion: string;
+  recipient_name: string;
+  sender_name: string;
+  relationship?: string | null;
+  event_date?: string | null;
+  custom_title?: string | null;
+  personal_message?: string | null;
+  favorite_memories?: string[] | null;
+  special_moments?: string[] | null;
+  theme_slug?: string | null;
+  selected_sections: {
+    music?: boolean;
+    gallery?: boolean;
+    timeline?: boolean;
+    letter?: boolean;
+    guestbook?: boolean;
+    quotes?: boolean;
+    dreams?: boolean;
+    countdown?: boolean;
+    reactions?: boolean;
+    qr_code?: boolean;
+    share?: boolean;
+  };
+  effects?: string[] | null;
+  is_password_protected?: boolean | null;
+  password_hash?: string | null;
+  secret_message?: string | null;
+  music_url?: string | null;
+  is_published?: boolean | null;
+  unlock_date?: string | null;
+  created_at: string;
+  ai_title?: string | null;
+  ai_story_narrative?: string | null;
+  ai_letter?: string | null;
+  ai_timeline?: Array<{ date?: string; title: string; description: string }> | null;
+  ai_quotes?: Array<{ quote: string; author: string }> | null;
+  ai_poem?: string | null;
+  themes?: { slug: string } | null;
+}
+
+interface MediaItem {
+  id: string;
+  url: string;
+  type?: string;
+  created_at?: string;
+}
+
+interface GuestbookItem {
+  id: string;
+  name: string;
+  message: string;
+  created_at: string;
+  is_approved?: boolean;
+}
+
 interface Props {
-  initialMoment: any;
-  initialMedia: any[];
-  initialGuestbook: any[];
+  initialMoment: MomentData;
+  initialMedia: MediaItem[];
+  initialGuestbook: GuestbookItem[];
 }
 
 const themeStyles = {
@@ -174,8 +229,16 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const [passwordError, setPasswordError] = useState(false);
 
   // Time reveal logic
-  const isTimeLocked = initialMoment.unlock_date && new Date(initialMoment.unlock_date).getTime() > Date.now();
-  const [timeUnlocked, setTimeUnlocked] = useState(!isTimeLocked);
+  const [timeUnlocked, setTimeUnlocked] = useState(true);
+
+  useEffect(() => {
+    if (!initialMoment.unlock_date) {
+      setTimeUnlocked(true);
+      return;
+    }
+    const isLocked = new Date(initialMoment.unlock_date).getTime() > Date.now();
+    setTimeUnlocked(!isLocked);
+  }, [initialMoment.unlock_date]);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Music state
@@ -198,7 +261,9 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Dynamic Milestone Counters
-  const [milestoneDays, setMilestoneDays] = useState(0);
+  const milestoneDays = initialMoment.event_date 
+    ? Math.floor(Math.abs(Date.now() - new Date(initialMoment.event_date).getTime()) / (1000 * 60 * 60 * 24)) 
+    : 0;
 
   // Fire view analytics increment once on load
   useEffect(() => {
@@ -257,12 +322,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
     return () => clearInterval(interval);
   }, [initialMoment.unlock_date]);
 
-  // Calculate milestone days
-  useEffect(() => {
-    if (!initialMoment.event_date) return;
-    const diff = Math.abs(Date.now() - new Date(initialMoment.event_date).getTime());
-    setMilestoneDays(Math.floor(diff / (1000 * 60 * 60 * 24)));
-  }, [initialMoment.event_date]);
+
 
   // Spark confetti cascade on unlock
   const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -730,7 +790,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
               {/* Dynamic vertical glowing gradient track line */}
               <div className="absolute -left-[2px] top-1.5 bottom-1.5 w-0.5 bg-gradient-to-b from-primary via-pink-500 to-amber-400" />
 
-              {initialMoment.ai_timeline.map((item: any, idx: number) => (
+              {initialMoment.ai_timeline.map((item: { date?: string; title: string; description: string }, idx: number) => (
                 <motion.div 
                   key={idx}
                   initial={{ opacity: 0, x: -15 }}
@@ -806,9 +866,9 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
           <section className="space-y-6">
             <h3 className={`text-xs uppercase tracking-widest font-black text-center ${style.subText}`}>Meaningful Quotes</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {initialMoment.ai_quotes.map((quote: any, i: number) => (
+              {initialMoment.ai_quotes.map((quote: { quote: string; author: string }, i: number) => (
                 <div key={i} className={`p-6 rounded-2xl ${style.cardBg} border text-center space-y-3 flex flex-col justify-between hover:-translate-y-0.5 transition-transform duration-300 shadow-sm`}>
-                  <p className="text-xs italic leading-relaxed">"{quote.quote}"</p>
+                  <p className="text-xs italic leading-relaxed">&quot;{quote.quote}&quot;</p>
                   <span className={`text-[9px] font-black uppercase tracking-wider block ${style.subText}`}>— {quote.author}</span>
                 </div>
               ))}
@@ -863,7 +923,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
                 ].map((react) => (
                   <button 
                     key={react.type}
-                    onClick={() => triggerReaction(react.type as any)}
+                    onClick={() => triggerReaction(react.type as 'heart' | 'like' | 'confetti')}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/80 hover:bg-secondary border text-xs font-semibold hover:scale-102 transition-transform"
                   >
                     <span>{react.emoji}</span>
@@ -904,7 +964,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
 
             {/* List entries styled as note lists */}
             <div className="space-y-3.5 max-h-80 overflow-y-auto pr-2 scrollbar-none">
-              {guestbook.map((entry: any, i: number) => (
+              {guestbook.map((entry: GuestbookItem, i: number) => (
                 <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 space-y-1 text-left relative overflow-hidden">
                   <div className="flex justify-between items-center text-xs font-bold">
                     <span>{entry.name}</span>
