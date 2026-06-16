@@ -16,7 +16,8 @@ import {
   Copy, 
   Check, 
   Mail,
-  LoaderCircle
+  LoaderCircle,
+  Volume
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
@@ -241,9 +242,35 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   }, [initialMoment.unlock_date]);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Music state
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Music player state
+const [volume, setVolume] = useState<number>(() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('player_volume') : null;
+    return stored ? parseFloat(stored) : 0.5;
+  });
+const [playing, setPlaying] = useState<boolean>(false);
+const [isMobile, setIsMobile] = useState<boolean>(false);
+const [showVolume, setShowVolume] = useState<boolean>(false);
+const audioRef = useRef<HTMLAudioElement>(new Audio(initialMoment.music_url ?? ''));
+
+// Detect mobile/desktop on mount and resize
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(/Mobi|Android|iPhone/i.test(navigator.userAgent));
+  };
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+  return () => window.removeEventListener('resize', checkMobile);
+}, []);
+
+
+
+  // Persist volume changes
+  useEffect(() => {
+    localStorage.setItem('player_volume', volume.toString());
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   // Interactive details
   const [isLetterOpen, setIsLetterOpen] = useState(false);
@@ -352,12 +379,8 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
 
   // Music Vinyl Player control
   const togglePlayMusic = () => {
-    if (!audioRef.current) {
-      // Set premium fallback copyright-free emotional background track
-      audioRef.current = new Audio(initialMoment.music_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-      audioRef.current.loop = true;
-    }
-    
+    if (!audioRef.current) return;
+
     if (playing) {
       audioRef.current.pause();
     } else {
@@ -605,9 +628,40 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
                   togglePlayMusic();
                 }
               }}
+              onMouseEnter={() => !isMobile && setShowVolume(true)}
+              onMouseLeave={() => !isMobile && setShowVolume(false)}
               className={`inline-flex items-center gap-4 pl-4 pr-6 py-3.5 rounded-full ${style.cardBg} backdrop-blur-xl border shadow-xl cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-all mx-auto relative overflow-hidden`}
               style={{ boxShadow: `0 10px 30px -5px ${style.glowColor}` }}
             >
+              {/* Volume slider (desktop hover) */}
+              {showVolume && (
+                <div className="absolute bottom-2 left-2 right-2 flex items-center space-x-2 bg-black/30 backdrop-blur-sm p-1 rounded">
+                  <Volume className="w-4 h-4 text-white" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={e => setVolume(parseFloat(e.target.value))}
+                    aria-label="Sound volume"
+                    className="flex-1"
+                  />
+                </div>
+              )}
+              {/* Mobile volume toggle button */}
+              {isMobile && (
+                <button
+                  type="button"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setShowVolume(prev => !prev);
+                  }}
+                  className="absolute top-1 right-1 p-1 bg-black/30 rounded-full"
+                >
+                  <Volume className="w-4 h-4 text-white" />
+                </button>
+              )}
               {/* Spinning record disc */}
               <div className="relative shrink-0">
                 <div className={`w-10 h-10 rounded-full bg-zinc-950 border border-white/10 flex items-center justify-center shadow-md relative ${playing || (embedData && embedData.type !== 'audio') ? 'animate-spin-slow' : ''}`}>
