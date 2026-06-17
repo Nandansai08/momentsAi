@@ -298,11 +298,18 @@ useEffect(() => {
   const [copiedLink, setCopiedLink] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up copy timeout on unmount
+  // Mobile Quick Share state
+  const [quickCopied, setQuickCopied] = useState(false);
+  const quickCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up copy timeouts on unmount
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) {
         clearTimeout(copyTimeoutRef.current);
+      }
+      if (quickCopyTimeoutRef.current) {
+        clearTimeout(quickCopyTimeoutRef.current);
       }
     };
   }, []);
@@ -465,6 +472,47 @@ useEffect(() => {
       }, 1500);
     } catch (err) {
       console.error("Failed to copy link to clipboard:", err);
+    }
+  };
+
+  const handleQuickShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const shareData = {
+      title: initialMoment.custom_title || `To ${initialMoment.recipient_name}`,
+      text: "Explore this gorgeous digital memories page on MomentsAI!",
+      url: window.location.href,
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        // user cancelled share sheet
+        if ((error as DOMException)?.name === "AbortError") {
+          return;
+        }
+        console.error("Native share failed:", error);
+      }
+    }
+
+    // Clipboard fallback
+    if (typeof window !== 'undefined' && window.isSecureContext && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        
+        if (quickCopyTimeoutRef.current) {
+          clearTimeout(quickCopyTimeoutRef.current);
+        }
+        
+        setQuickCopied(true);
+        quickCopyTimeoutRef.current = setTimeout(() => {
+          setQuickCopied(false);
+        }, 1500);
+      } catch (err) {
+        console.error("Clipboard fallback copy failed:", err);
+      }
     }
   };
 
@@ -1176,6 +1224,36 @@ useEffect(() => {
           </>
         )}
       </AnimatePresence>
+
+      {/* Mobile Floating Quick-Share Button */}
+      <div className="md:hidden fixed bottom-6 right-6 z-40">
+        <div className="relative">
+          <AnimatePresence>
+            {quickCopied && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                exit={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute bottom-full left-1/2 mb-3 px-2.5 py-1.5 rounded-md bg-zinc-950 text-white text-[11px] font-bold shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center"
+                role="status"
+                aria-live="polite"
+              >
+                Copied!
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-950" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            type="button"
+            onClick={handleQuickShare}
+            className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/10 shadow-lg flex items-center justify-center transition-transform active:scale-95 text-foreground"
+            aria-label="Share this moment"
+          >
+            <Share2 className="w-5.5 h-5.5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
