@@ -245,11 +245,12 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   // Music player state
 const [volume, setVolume] = useState<number>(() => {
     const stored = typeof window !== 'undefined' ? localStorage.getItem('player_volume') : null;
-    return stored ? parseFloat(stored) : 0.5;
+    return stored ? parseFloat(stored) : 0.7;
   });
 const [playing, setPlaying] = useState<boolean>(false);
 const [isMobile, setIsMobile] = useState<boolean>(false);
 const [showVolume, setShowVolume] = useState<boolean>(false);
+const [isMuted, setIsMuted] = useState<boolean>(false);
 const audioRef = useRef<HTMLAudioElement>(new Audio(initialMoment.music_url ?? ''));
 
 // Detect mobile/desktop on mount and resize
@@ -271,6 +272,13 @@ useEffect(() => {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  // Sync mute state with audio element
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted]);
 
   // Interactive details
   const [isLetterOpen, setIsLetterOpen] = useState(false);
@@ -636,7 +644,14 @@ useEffect(() => {
               {/* Volume slider (desktop hover) */}
               {showVolume && (
                 <div className="absolute bottom-2 left-2 right-2 flex items-center space-x-2 bg-black/30 backdrop-blur-sm p-1 rounded">
-                  <Volume className="w-4 h-4 text-white" />
+                  <Volume
+                    className="w-4 h-4 text-white cursor-pointer"
+                    onClick={e => {
+                      e.stopPropagation();
+                      const newMuted = !isMuted;
+                      setIsMuted(newMuted);
+                    }}
+                  />
                   <input
                     type="range"
                     min="0"
@@ -644,7 +659,7 @@ useEffect(() => {
                     step="0.01"
                     value={volume}
                     onChange={e => setVolume(parseFloat(e.target.value))}
-                    aria-label="Sound volume"
+                    aria-label="Volume"
                     className="flex-1"
                   />
                 </div>
@@ -656,6 +671,9 @@ useEffect(() => {
                   onClick={e => {
                     e.stopPropagation();
                     setShowVolume(prev => !prev);
+                    // Also toggle mute on tap
+                    const newMuted = !isMuted;
+                    setIsMuted(newMuted);
                   }}
                   className="absolute top-1 right-1 p-1 bg-black/30 rounded-full"
                 >
