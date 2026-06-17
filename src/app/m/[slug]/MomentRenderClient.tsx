@@ -261,6 +261,16 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   // Share Dialog state
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up copy timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Dynamic Milestone Counters
   const [milestoneDays, setMilestoneDays] = useState(0);
@@ -406,8 +416,15 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const handleCopyShareLink = () => {
     const url = `${window.location.origin}/m/${initialMoment.slug}`;
     navigator.clipboard.writeText(url);
+    
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+    
     setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2500);
+    copyTimeoutRef.current = setTimeout(() => {
+      setCopiedLink(false);
+    }, 1500);
   };
 
   // Heart emoji reaction click trigger
@@ -1045,13 +1062,31 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
                     value={`${window.location.origin}/m/${initialMoment.slug}`}
                     className="flex-1 bg-secondary text-xs px-4 py-3.5 rounded-2xl border text-muted-foreground truncate"
                   />
-                  <button
-                    onClick={handleCopyShareLink}
-                    className="px-5 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-xs shrink-0 flex items-center gap-1.5 transition-colors"
-                  >
-                    {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                    <span>{copiedLink ? 'Copied' : 'Copy'}</span>
-                  </button>
+                  <div className="relative">
+                    <AnimatePresence>
+                      {copiedLink && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                          exit={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                          transition={{ duration: 0.15, ease: "easeOut" }}
+                          className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 px-2.5 py-1 rounded-md bg-zinc-950 text-white text-[11px] font-bold shadow-md whitespace-nowrap pointer-events-none z-50 flex items-center justify-center"
+                          role="status"
+                          aria-live="polite"
+                        >
+                          Copied!
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-950" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    <button
+                      onClick={handleCopyShareLink}
+                      className="px-5 py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold text-xs shrink-0 flex items-center gap-1.5 transition-colors"
+                    >
+                      {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedLink ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
