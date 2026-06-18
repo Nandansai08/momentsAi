@@ -255,6 +255,8 @@ function detectMusicProvider(url: string) {
   };
 }
 
+const MAX_CHARS = 500;
+
 export default function GeneratorPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -430,6 +432,10 @@ export default function GeneratorPage() {
   };
 
   const handleCompileWebsite = async () => {
+    if (personalMessage && personalMessage.length > MAX_CHARS) {
+      alert(`Personal message cannot exceed ${MAX_CHARS} characters.`);
+      return;
+    }
     setLoading(true);
     setLoadingStatus("Connecting to Bedrock...");
     
@@ -674,6 +680,15 @@ export default function GeneratorPage() {
     </div>
   );
 
+  const charCount = personalMessage?.length || 0;
+  const isWarning = charCount >= MAX_CHARS * 0.8;
+  const isDanger = charCount >= MAX_CHARS * 0.95;
+  const counterColorClass = isDanger
+    ? 'text-red-500 font-bold'
+    : isWarning
+    ? 'text-amber-500 font-bold'
+    : 'text-zinc-400 font-medium';
+
   return (
     <div className="min-h-screen bg-[#faf9f6]/40 py-10 px-6">
       {/* Loading Overlay */}
@@ -870,11 +885,17 @@ export default function GeneratorPage() {
                     <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">{activeQuestions.messageLabel}</label>
                     <textarea
                       rows={3}
+                      maxLength={MAX_CHARS}
                       placeholder={activeQuestions.messagePlaceholder}
                       value={personalMessage}
                       onChange={(e) => setPersonalMessage(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium leading-relaxed"
                     />
+                    <div className="flex justify-end pr-0.5">
+                      <span className={`text-[10px] tracking-wider select-none ${counterColorClass}`}>
+                        {charCount} / {MAX_CHARS} characters
+                      </span>
+                    </div>
                   </div>
 
                   {/* Dynamic Memory Event Buffers */}
