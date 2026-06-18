@@ -16,3 +16,12 @@ export function formatDate(dateString: string | null | undefined): string {
     year: "numeric",
   });
 }
+
+export function calculateReadTime(text: string | null | undefined): number {
+  if (!text?.trim()) return 0;
+
+  const words = text.trim().split(/\s+/).length;
+
+  return Math.max(1, Math.ceil(words / 200));
+}
+

@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
-import { formatDate } from '@/lib/utils';
+import { formatDate, calculateReadTime } from '@/lib/utils';
 
 interface MomentData {
   id: string;
@@ -224,6 +224,7 @@ export default function MomentRenderClient({ initialMoment, initialMedia, initia
   const style = themeStyles[themeSlug] || themeStyles.romantic;
   const embedData = parseMusicEmbed(initialMoment.music_url);
   const letterText = initialMoment.ai_letter || initialMoment.personal_message;
+  const readTime = calculateReadTime(initialMoment.ai_story_narrative);
 
   // View state triggers
   const [unlocked, setUnlocked] = useState(!initialMoment.is_password_protected);
@@ -761,7 +762,17 @@ useEffect(() => {
               className={`p-8 md:p-10 rounded-[32px] ${style.cardBg} border shadow-lg text-center space-y-4 relative overflow-hidden`}
               style={{ boxShadow: `0 15px 35px -10px ${style.glowColor}` }}
             >
-              <h3 className={`text-xs uppercase tracking-widest font-black ${style.subText}`}>Our Story Journey</h3>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2">
+                <h3 className={`text-xs uppercase tracking-widest font-black ${style.subText}`}>Our Story Journey</h3>
+                {readTime > 0 && (
+                  <>
+                    <span className="hidden sm:inline opacity-40 select-none">•</span>
+                    <span className="text-[10px] uppercase font-bold opacity-60 tracking-wider">
+                      {readTime} min read
+                    </span>
+                  </>
+                )}
+              </div>
               <p className="text-sm md:text-base leading-relaxed opacity-95">
                 {initialMoment.ai_story_narrative}
               </p>
