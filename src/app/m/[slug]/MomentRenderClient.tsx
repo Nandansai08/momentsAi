@@ -17,7 +17,8 @@ import {
   Check, 
   Mail,
   LoaderCircle,
-  Volume
+  Volume,
+  ArrowUp
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
@@ -285,6 +286,24 @@ useEffect(() => {
   const [isLetterOpen, setIsLetterOpen] = useState(false);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [secretRevealed, setSecretRevealed] = useState(false);
+  const SCROLL_TOP_THRESHOLD = 500;
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const shouldShow = window.scrollY > SCROLL_TOP_THRESHOLD;
+      setShowScrollTop((prev) => (prev !== shouldShow ? shouldShow : prev));
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   // Guestbook & Reactions lists
   const [guestbook, setGuestbook] = useState(initialGuestbook);
@@ -1185,6 +1204,25 @@ useEffect(() => {
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Scroll To Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            transition={{ duration: 0.2 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-40 p-3.5 rounded-full bg-zinc-950/80 backdrop-blur-md shadow-2xl border border-white/10 hover:bg-zinc-900 transition-colors text-white cursor-pointer"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp className="w-5 h-5 text-primary" />
+          </motion.button>
         )}
       </AnimatePresence>
     </div>
