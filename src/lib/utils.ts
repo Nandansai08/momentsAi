@@ -29,7 +29,7 @@ export type SlateBgVariant = 'warm_white' | 'cool_gray' | 'cream';
 
 export const SLATE_BACKGROUNDS = {
   cool_gray: {
-    renderer: "from-zinc-50 via-zinc-100 to-zinc-150",
+    renderer: "from-zinc-50 via-zinc-100 to-zinc-200",
     preview: "from-zinc-50 to-zinc-200"
   },
   warm_white: {

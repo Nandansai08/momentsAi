@@ -335,7 +335,14 @@ export default function GeneratorPage() {
           if (parsed.memories) setMemories(parsed.memories);
           if (parsed.achievements) setAchievements(parsed.achievements);
           if (parsed.themeId) setThemeId(parsed.themeId);
-          if (parsed.slateVariant) setSlateVariant(parsed.slateVariant);
+          if (
+            parsed.slateVariant &&
+            parsed.slateVariant in SLATE_BACKGROUNDS
+          ) {
+            setSlateVariant(parsed.slateVariant);
+          } else {
+            setSlateVariant('cool_gray');
+          }
           if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
           if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
         }, 0);
@@ -1050,20 +1057,47 @@ export default function GeneratorPage() {
                   </div>
 
                   {themeId === 'minimal' && (
-                    <div className="space-y-3 pt-4 border-t border-zinc-150 animate-in fade-in-50 duration-200">
+                    <div className="space-y-3 pt-4 border-t border-zinc-200 animate-in fade-in-50 duration-200">
                       <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">Slate Background Color Variant</label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div 
+                        role="radiogroup"
+                        aria-label="Slate background color"
+                        className="grid grid-cols-3 gap-3"
+                      >
                         {[
-                          { id: 'cool_gray', name: 'Cool Gray', desc: 'Default gray background', previewBg: 'from-zinc-50 to-zinc-200' },
-                          { id: 'warm_white', name: 'Warm White', desc: 'Soft warm background', previewBg: 'from-stone-50 to-stone-100' },
-                          { id: 'cream', name: 'Cream', desc: 'Warm amber background', previewBg: 'from-amber-50/60 to-amber-100' },
+                          { id: 'cool_gray', name: 'Cool Gray', desc: 'Default gray background' },
+                          { id: 'warm_white', name: 'Warm White', desc: 'Soft warm background' },
+                          { id: 'cream', name: 'Cream', desc: 'Warm amber background' },
                         ].map((variant) => {
                           const isVariantSelected = slateVariant === variant.id;
+                          const slateBg = SLATE_BACKGROUNDS[variant.id as SlateBgVariant];
                           return (
                             <button
                               key={variant.id}
                               type="button"
+                              role="radio"
+                              aria-checked={isVariantSelected}
+                              tabIndex={isVariantSelected ? 0 : -1}
+                              id={`slate-variant-${variant.id}`}
                               onClick={() => setSlateVariant(variant.id as SlateBgVariant)}
+                              onKeyDown={(e) => {
+                                const variants = ['cool_gray', 'warm_white', 'cream'] as const;
+                                const currentIndex = variants.indexOf(slateVariant);
+                                let targetIndex = -1;
+                                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                                  targetIndex = (currentIndex + 1) % variants.length;
+                                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                                  targetIndex = (currentIndex - 1 + variants.length) % variants.length;
+                                }
+                                if (targetIndex !== -1) {
+                                  e.preventDefault();
+                                  const nextVariant = variants[targetIndex];
+                                  setSlateVariant(nextVariant);
+                                  setTimeout(() => {
+                                    document.getElementById(`slate-variant-${nextVariant}`)?.focus();
+                                  }, 0);
+                                }
+                              }}
                               className={`p-3.5 rounded-2xl border transition-all text-left flex flex-col justify-between h-24 cursor-pointer ${
                                 isVariantSelected
                                   ? 'bg-zinc-50 border-violet-500 shadow-md shadow-violet-500/5 text-zinc-900 font-bold'
@@ -1077,7 +1111,7 @@ export default function GeneratorPage() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 mt-2">
-                                <div className={`w-6 h-6 rounded-md border border-zinc-300 bg-gradient-to-b ${variant.previewBg}`} />
+                                <div className={`w-6 h-6 rounded-md border border-zinc-300 bg-gradient-to-b ${slateBg.preview}`} />
                                 <span className="text-[9px] opacity-75 leading-tight font-medium line-clamp-2">{variant.desc}</span>
                               </div>
                             </button>
@@ -1089,7 +1123,7 @@ export default function GeneratorPage() {
 
                   {/* Dynamic Music Paste Embed Area */}
                   {sections.music && (
-                    <div className="space-y-3.5 pt-4 border-t border-zinc-150">
+                    <div className="space-y-3.5 pt-4 border-t border-zinc-200">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-zinc-500 uppercase pl-1 tracking-wider flex items-center gap-2">
                           <Music className="w-4 h-4 text-primary" />
@@ -1158,7 +1192,7 @@ export default function GeneratorPage() {
                   )}
 
                   {/* Privacy protection panel */}
-                  <div className="space-y-4 pt-4 border-t border-zinc-150">
+                  <div className="space-y-4 pt-4 border-t border-zinc-200">
                     <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">Security Settings</label>
                     <div className="space-y-4">
                       <button
@@ -1201,7 +1235,7 @@ export default function GeneratorPage() {
             </div>
 
             {/* Stepper Navigation Buttons */}
-            <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-150">
+            <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-200">
               {step > 1 ? (
                 <button
                   type="button"

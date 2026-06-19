@@ -102,7 +102,20 @@ export async function POST(request: Request) {
         secret_message,
         music_url,
         is_published: true,
-        custom_colors: custom_colors || null
+        custom_colors: (() => {
+          const VALID_SLATE_VARIANTS = [
+            'cool_gray',
+            'warm_white',
+            'cream',
+          ] as const;
+
+          return custom_colors?.slateVariant &&
+            VALID_SLATE_VARIANTS.includes(
+              custom_colors.slateVariant as typeof VALID_SLATE_VARIANTS[number]
+            )
+              ? { slateVariant: custom_colors.slateVariant }
+              : null;
+        })()
       })
       .select()
       .single();

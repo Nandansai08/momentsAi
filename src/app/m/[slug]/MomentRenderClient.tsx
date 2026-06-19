@@ -115,7 +115,7 @@ const themeStyles = {
     neonText: "text-indigo-600 font-black"
   },
   minimal: {
-    bg: "from-zinc-50 via-zinc-100 to-zinc-150",
+    bg: "from-zinc-50 via-zinc-100 to-zinc-200",
     text: "text-zinc-900",
     subText: "text-zinc-500 font-bold",
     accent: "bg-zinc-900 text-white",
