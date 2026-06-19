@@ -794,16 +794,33 @@ export default function GeneratorPage() {
                           key={item.id}
                           type="button"
                           onClick={() => setOccasion(item.id)}
-                          className={`p-4 rounded-2.5xl border transition-all text-left flex flex-col justify-between h-28 cursor-pointer ${
-                            isSelected 
-                              ? 'bg-violet-500/5 border-violet-500 shadow-md shadow-violet-500/5 text-violet-950 font-black' 
-                              : 'bg-zinc-50/50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-700'
+                          className={`relative rounded-2.5xl transition-all cursor-pointer ${
+                            isSelected
+                              ? 'p-0.5 bg-gradient-to-r from-violet-600 to-pink-500 ring-4 ring-primary-500/20'
+                              : ''
                           }`}
                         >
-                          <div className={`w-8.5 h-8.5 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-sm ${isSelected ? 'text-violet-600' : 'text-zinc-500'}`}>
-                            <IconComp className="w-4.5 h-4.5" />
+                          {/* Inner card maintaining original styling */}
+                          <div
+                            className={`flex flex-col p-4 justify-between h-28 w-full rounded-2.5xl border transition-colors text-left ${
+                              isSelected
+                                ? 'bg-violet-500/5 border-transparent shadow-md shadow-violet-500/5 text-violet-950 font-black'
+                                : 'bg-zinc-50/50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-700'
+                            }`}
+                          >
+                            <div
+                              className={`w-8.5 h-8.5 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-sm ${
+                                isSelected ? 'text-violet-600' : 'text-zinc-500'
+                              }`}
+                            >
+                              <IconComp className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-xs font-bold">{item.label}</span>
                           </div>
-                          <span className="text-xs font-bold">{item.label}</span>
+                          {/* Check badge for selected card */}
+                          {isSelected && (
+                            <Check className="absolute top-1 right-1 w-4 h-4 text-white bg-primary-500 rounded-full p-0.5" />
+                          )}
                         </button>
                       );
                     })}
