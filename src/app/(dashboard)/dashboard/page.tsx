@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import AnalyticsChart from '@/components/AnalyticsChart';
 import { 
   Plus, 
   ExternalLink, 
@@ -168,6 +169,9 @@ export default function MyWebsitesPage() {
           </div>
         </div>
       )}
+{/* Visit Trends (Last 7 Days) */}
+<h2 className="text-2xl font-bold mt-6 mb-2 text-zinc-900">Visit Trends (Last 7 Days)</h2>
+<AnalyticsChart />
 
       {/* Filter and Search Bar Workspace */}
       {!loading && moments.length > 0 && (
