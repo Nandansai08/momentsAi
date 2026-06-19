@@ -25,3 +25,19 @@ export function calculateReadTime(text: string | null | undefined): number {
   return Math.max(1, Math.ceil(words / 200));
 }
 
+export type SlateBgVariant = 'warm_white' | 'cool_gray' | 'cream';
+
+export const SLATE_BACKGROUNDS = {
+  cool_gray: {
+    renderer: "from-zinc-50 via-zinc-100 to-zinc-150",
+    preview: "from-zinc-50 to-zinc-200"
+  },
+  warm_white: {
+    renderer: "from-stone-50 via-stone-100/50 to-stone-100",
+    preview: "from-stone-50 to-stone-100"
+  },
+  cream: {
+    renderer: "from-amber-50/60 via-amber-50 to-amber-100/70",
+    preview: "from-amber-50/60 to-amber-100"
+  }
+} as const;

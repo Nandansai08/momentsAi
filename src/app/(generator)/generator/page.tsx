@@ -22,6 +22,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { SlateBgVariant, SLATE_BACKGROUNDS } from '@/lib/utils';
 
 const occasionsList = [
   { id: 'birthday', label: 'Birthday', icon: Gift, color: 'from-pink-500 to-rose-500' },
@@ -287,6 +288,7 @@ export default function GeneratorPage() {
 
   // Styling / Toggles
   const [themeId, setThemeId] = useState('romantic');
+  const [slateVariant, setSlateVariant] = useState<SlateBgVariant>('cool_gray');
   const [sections] = useState({
     music: true,
     gallery: true,
@@ -333,6 +335,7 @@ export default function GeneratorPage() {
           if (parsed.memories) setMemories(parsed.memories);
           if (parsed.achievements) setAchievements(parsed.achievements);
           if (parsed.themeId) setThemeId(parsed.themeId);
+          if (parsed.slateVariant) setSlateVariant(parsed.slateVariant);
           if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
           if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
         }, 0);
@@ -347,13 +350,13 @@ export default function GeneratorPage() {
     const draftData = {
       occasion, recipientName, senderName, relationship, eventDate,
       customTitle, personalMessage, memories, achievements, themeId,
-      musicUrl, secretMessage
+      slateVariant, musicUrl, secretMessage
     };
     localStorage.setItem('momentsai_wizard_draft', JSON.stringify(draftData));
   }, [
     occasion, recipientName, senderName, relationship, eventDate,
     customTitle, personalMessage, memories, achievements, themeId,
-    musicUrl, secretMessage
+    slateVariant, musicUrl, secretMessage
   ]);
 
   const clearDraft = () => {
@@ -372,6 +375,8 @@ export default function GeneratorPage() {
       setSecretMessage('');
       setPasswordProtection(false);
       setPasswordString('');
+      setThemeId('romantic');
+      setSlateVariant('cool_gray');
       setStep(1);
     }
   };
@@ -480,7 +485,8 @@ export default function GeneratorPage() {
         password_hash: passwordString || null,
         secret_message: secretMessage || null,
         media_urls: uploadedFiles.map(file => file.url),
-        music_url: musicUrl || null
+        music_url: musicUrl || null,
+        custom_colors: themeId === 'minimal' ? { slateVariant } : null
       };
 
       const response = await fetch('/api/moments/generate', {
@@ -526,14 +532,16 @@ export default function GeneratorPage() {
           bulletColor: 'bg-white/20 border-white/10 text-indigo-200',
           buttonClass: 'bg-indigo-600 text-white'
         };
-      case 'minimal':
+      case 'minimal': {
+        const slateBg = SLATE_BACKGROUNDS[slateVariant] || SLATE_BACKGROUNDS.cool_gray;
         return {
-          bg: 'bg-gradient-to-b from-zinc-50 to-zinc-200 font-mono text-zinc-900',
+          bg: `bg-gradient-to-b ${slateBg.preview} font-mono text-zinc-900`,
           card: 'bg-white/95 border-zinc-200 text-zinc-900',
           accentText: 'text-zinc-500',
           bulletColor: 'bg-zinc-100 border-zinc-200 text-zinc-600',
           buttonClass: 'bg-zinc-800 text-white'
         };
+      }
       case 'luxury':
         return {
           bg: 'bg-gradient-to-b from-stone-900 to-black font-serif text-amber-100',
@@ -1040,6 +1048,44 @@ export default function GeneratorPage() {
                       })}
                     </div>
                   </div>
+
+                  {themeId === 'minimal' && (
+                    <div className="space-y-3 pt-4 border-t border-zinc-150 animate-in fade-in-50 duration-200">
+                      <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">Slate Background Color Variant</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { id: 'cool_gray', name: 'Cool Gray', desc: 'Default gray background', previewBg: 'from-zinc-50 to-zinc-200' },
+                          { id: 'warm_white', name: 'Warm White', desc: 'Soft warm background', previewBg: 'from-stone-50 to-stone-100' },
+                          { id: 'cream', name: 'Cream', desc: 'Warm amber background', previewBg: 'from-amber-50/60 to-amber-100' },
+                        ].map((variant) => {
+                          const isVariantSelected = slateVariant === variant.id;
+                          return (
+                            <button
+                              key={variant.id}
+                              type="button"
+                              onClick={() => setSlateVariant(variant.id as SlateBgVariant)}
+                              className={`p-3.5 rounded-2xl border transition-all text-left flex flex-col justify-between h-24 cursor-pointer ${
+                                isVariantSelected
+                                  ? 'bg-zinc-50 border-violet-500 shadow-md shadow-violet-500/5 text-zinc-900 font-bold'
+                                  : 'bg-[#faf9f6]/40 border-zinc-200 hover:border-zinc-300 text-zinc-700'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <span className="text-xs font-bold">{variant.name}</span>
+                                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${isVariantSelected ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white'}`}>
+                                  {isVariantSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className={`w-6 h-6 rounded-md border border-zinc-300 bg-gradient-to-b ${variant.previewBg}`} />
+                                <span className="text-[9px] opacity-75 leading-tight font-medium line-clamp-2">{variant.desc}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Dynamic Music Paste Embed Area */}
                   {sections.music && (

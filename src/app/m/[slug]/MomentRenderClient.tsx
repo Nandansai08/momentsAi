@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
-import { formatDate, calculateReadTime } from '@/lib/utils';
+import { formatDate, calculateReadTime, SLATE_BACKGROUNDS, SlateBgVariant } from '@/lib/utils';
 
 interface MomentData {
   id: string;
@@ -65,6 +65,7 @@ interface MomentData {
   ai_quotes?: Array<{ quote: string; author: string }> | null;
   ai_poem?: string | null;
   themes?: { slug: string } | null;
+  custom_colors?: { slateVariant?: SlateBgVariant; } | null;
 }
 
 interface MediaItem {
@@ -222,7 +223,14 @@ function parseMusicEmbed(url: string | null | undefined) {
 export default function MomentRenderClient({ initialMoment, initialMedia, initialGuestbook }: Props) {
   const supabase = createClient();
   const themeSlug = (initialMoment.themes?.slug || 'romantic') as keyof typeof themeStyles;
-  const style = themeStyles[themeSlug] || themeStyles.romantic;
+  const style = { ...(themeStyles[themeSlug] || themeStyles.romantic) };
+
+  // Apply custom slate variant background if the minimal theme is active
+  if (themeSlug === 'minimal') {
+    const slateVariant = (initialMoment.custom_colors?.slateVariant ?? 'cool_gray') as SlateBgVariant;
+    const slateBg = SLATE_BACKGROUNDS[slateVariant] || SLATE_BACKGROUNDS.cool_gray;
+    style.bg = slateBg.renderer;
+  }
   const embedData = parseMusicEmbed(initialMoment.music_url);
   const letterText = initialMoment.ai_letter || initialMoment.personal_message;
   const readTime = calculateReadTime(initialMoment.ai_story_narrative);
