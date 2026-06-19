@@ -385,7 +385,9 @@ export default function GeneratorPage() {
     if (!trimmed) return;
 
     if (trimmed.length < MIN_MEMORY_CHARS) {
-      setMemoryError("Timeline memory description must be at least 5 characters.");
+      setMemoryError(
+        `Timeline memory description must be at least ${MIN_MEMORY_CHARS} characters.`
+      );
       return;
     }
 
@@ -922,6 +924,8 @@ export default function GeneratorPage() {
                           if (memoryError) setMemoryError(null);
                         }}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addMemory())}
+                        aria-invalid={!!memoryError}
+                        aria-describedby={memoryError ? "memory-error" : undefined}
                         className="flex-1 px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none font-semibold"
                       />
                       <button
@@ -934,7 +938,10 @@ export default function GeneratorPage() {
                     </div>
 
                     {memoryError && (
-                      <p className="text-xs text-red-500 font-semibold pl-1 animate-in fade-in-50 slide-in-from-top-1 duration-200">
+                      <p
+                        id="memory-error"
+                        className="text-xs text-red-500 font-semibold pl-1 animate-in fade-in-50 slide-in-from-top-1 duration-200"
+                      >
                         {memoryError}
                       </p>
                     )}
