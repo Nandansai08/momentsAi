@@ -286,6 +286,7 @@ useEffect(() => {
   const [isLetterOpen, setIsLetterOpen] = useState(false);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [secretRevealed, setSecretRevealed] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const SCROLL_TOP_THRESHOLD = 500;
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -975,19 +976,36 @@ useEffect(() => {
             
             {/* Elegant multi-column masonry grid spacing */}
             <div className="columns-2 md:columns-3 gap-4 space-y-4">
-              {initialMedia.map((photo) => (
-                <div 
-                  key={photo.id}
-                  onClick={() => setActivePhoto(photo.url)}
-                  className="relative rounded-2xl border overflow-hidden bg-background break-inside-avoid shadow group cursor-zoom-in border-border/60 hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <img src={photo.url} alt="Collage Photo" className="object-cover w-full h-auto" />
-                  {/* Polaroid hover action */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <Maximize2 className="w-5 h-5 text-white" />
+              {initialMedia.map((photo) => {
+                const isLoaded = !!loadedImages[photo.id];
+                const handleResolve = () => setLoadedImages((prev) => ({ ...prev, [photo.id]: true }));
+                return (
+                  <div 
+                    key={photo.id}
+                    onClick={() => setActivePhoto(photo.url)}
+                    className="relative rounded-2xl border overflow-hidden bg-background break-inside-avoid shadow group cursor-zoom-in border-border/60 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    {/* Placeholder skeleton */}
+                    {!isLoaded && (
+                      <div className="absolute inset-0 bg-secondary/50 animate-pulse w-full h-full" />
+                    )}
+                    <img 
+                      src={photo.url} 
+                      alt="Collage Photo" 
+                      loading="lazy"
+                      onLoad={handleResolve}
+                      onError={handleResolve}
+                      className={`object-cover w-full h-auto transition-opacity duration-500 ease-in-out ${
+                        isLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                    {/* Polaroid hover action */}
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <Maximize2 className="w-5 h-5 text-white" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
