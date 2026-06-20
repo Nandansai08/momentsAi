@@ -444,13 +444,23 @@ export default function GeneratorPage() {
       alert(`Personal message cannot exceed ${MAX_CHARS} characters.`);
       return;
     }
+    // ----- Validation (run BEFORE loading UI) -----
+    if (eventDate && eventDate > maxDateStr) {
+      const errorMsg = 'Date cannot be more than 5 years in the future.';
+      setDateError(errorMsg);
+      alert(errorMsg);
+      return;
+    } else {
+      setDateError(null);
+    }
+
     setLoading(true);
     setLoadingStatus("Connecting to Bedrock...");
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Please sign in or log in to continue");
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Please sign in or log in to continue");
-
       const loadingMessages = [
         "Analyzing your prompt details...",
         "Calling AI generative engine...",
@@ -470,12 +480,6 @@ export default function GeneratorPage() {
         }
       }, 1200);
 
-      // Validate date before sending
-      if (dateError) {
-        alert(dateError);
-        setLoading(false);
-        return;
-      }
       const payload = {
         user_id: user.id,
         occasion,
@@ -859,11 +863,6 @@ export default function GeneratorPage() {
                           onChange={(e) => setSenderName(e.target.value)}
                           className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold"
                         />
-                      {dateError && (
-                        <p id="date-error" className="text-xs text-red-500 font-semibold pl-1 animate-in fade-in-50 slide-in-from-top-1 duration-200">
-                          {dateError}
-                        </p>
-                      )}
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Relationship</label>
@@ -885,6 +884,8 @@ export default function GeneratorPage() {
                         type="date"
                         value={eventDate}
                         max={maxDateStr}
+                        aria-invalid={!!dateError}
+                        aria-describedby={dateError ? "date-error" : undefined}
                         onChange={(e) => {
                           const val = e.target.value;
                           setEventDate(val);
@@ -896,6 +897,11 @@ export default function GeneratorPage() {
                         }}
                         className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-zinc-700"
                       />
+                      {dateError && (
+                        <p id="date-error" className="text-xs text-red-500 font-semibold pl-1 animate-in fade-in-50 slide-in-from-top-1 duration-200">
+                          {dateError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Custom Header Title (Optional)</label>
