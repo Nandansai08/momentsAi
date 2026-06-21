@@ -857,8 +857,9 @@ export default function GeneratorPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">{activeQuestions.recipientLabel}</label>
+                      <label htmlFor="recipient-name" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">{activeQuestions.recipientLabel}</label>
                       <input
+                        id="recipient-name"
                         type="text"
                         placeholder={activeQuestions.recipientPlaceholder}
                         value={recipientName}
@@ -869,8 +870,9 @@ export default function GeneratorPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Your Name *</label>
+                        <label htmlFor="sender-name" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Your Name *</label>
                         <input
+                          id="sender-name"
                           type="text"
                           placeholder="e.g. Alex, Rohan"
                           value={senderName}
@@ -879,8 +881,9 @@ export default function GeneratorPage() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Relationship</label>
+                        <label htmlFor="relationship" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Relationship</label>
                         <input
+                          id="relationship"
                           type="text"
                           placeholder="e.g. best friend, partner"
                           value={relationship}
@@ -893,8 +896,9 @@ export default function GeneratorPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Event Milestone Date</label>
+                      <label htmlFor="event-date" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Event Milestone Date</label>
                       <input
+                        id="event-date"
                         type="date"
                         value={eventDate}
                         onChange={(e) => setEventDate(e.target.value)}
@@ -902,8 +906,9 @@ export default function GeneratorPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Custom Header Title (Optional)</label>
+                      <label htmlFor="custom-title" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Custom Header Title (Optional)</label>
                       <input
+                        id="custom-title"
                         type="text"
                         placeholder="e.g. Happy 25th Birthday Sarah!"
                         value={customTitle}
@@ -914,8 +919,10 @@ export default function GeneratorPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">{activeQuestions.messageLabel}</label>
+                    <label htmlFor="personal-message" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">{activeQuestions.messageLabel}</label>
                     <textarea
+                      id="personal-message"
+                      aria-describedby="personal-message-counter"
                       rows={3}
                       maxLength={MAX_CHARS}
                       placeholder={activeQuestions.messagePlaceholder}
@@ -924,7 +931,7 @@ export default function GeneratorPage() {
                       className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium leading-relaxed"
                     />
                     <div className="flex justify-end pr-0.5">
-                      <span className={`text-[10px] tracking-wider select-none ${counterColorClass}`}>
+                      <span id="personal-message-counter" className={`text-[10px] tracking-wider select-none ${counterColorClass}`}>
                         {charCount} / {MAX_CHARS} characters
                       </span>
                     </div>
@@ -932,9 +939,10 @@ export default function GeneratorPage() {
 
                   {/* Dynamic Memory Event Buffers */}
                   <div className="space-y-2.5">
-                    <label className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider block">{activeQuestions.memoriesLabel}</label>
+                    <label htmlFor="memories-input" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider block">{activeQuestions.memoriesLabel}</label>
                     <div className="flex gap-2">
                       <input
+                        id="memories-input"
                         type="text"
                         placeholder={activeQuestions.memoriesPlaceholder}
                         value={memoriesInput}
@@ -983,9 +991,14 @@ export default function GeneratorPage() {
                   </div>
 
                   <div className="border-2 border-dashed border-zinc-200/80 rounded-2.5xl p-10 text-center hover:border-violet-500/50 hover:bg-zinc-50/20 transition-all relative flex flex-col items-center justify-center group">
+                    <label htmlFor="memory-album-upload" className="sr-only">
+                      Upload memory album photos
+                    </label>
                     <input 
+                      id="memory-album-upload"
                       type="file" 
                       accept="image/*"
+                      aria-describedby="memory-album-help"
                       onChange={handleMediaUpload}
                       className="absolute inset-0 opacity-0 cursor-pointer" 
                     />
@@ -993,7 +1006,7 @@ export default function GeneratorPage() {
                       <Upload className="w-6 h-6 text-zinc-500 group-hover:text-violet-600 transition-colors" />
                     </div>
                     <p className="mt-4 text-sm font-bold text-zinc-900">Drag and drop images here, or <span className="text-[#8b5cf6]">browse folders</span></p>
-                    <p className="mt-1 text-[10px] text-zinc-400 font-medium">Supports JPG, PNG up to 10MB per file</p>
+                    <p id="memory-album-help" className="mt-1 text-[10px] text-zinc-400 font-medium">Supports JPG, PNG up to 10MB per file</p>
                   </div>
 
                   {uploadProgress !== null && (
