@@ -511,7 +511,7 @@ export default function GeneratorPage() {
 
       const responseData = await response.json();
       localStorage.removeItem('momentsai_wizard_draft');
-      router.push(`/m/${responseData.slug}`);
+      router.push(`/m/${responseData.slug}?success=true`);
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong.";

@@ -343,6 +343,25 @@ useEffect(() => {
     };
   }, []);
 
+  // Check for successful publish to trigger confetti & open share drawer
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        confetti({
+          particleCount: 140,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+        const timer = setTimeout(() => {
+          setIsShareOpen(true);
+        }, 0);
+        window.history.replaceState({}, "", window.location.pathname);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
   // Dynamic Milestone Counters
   const [milestoneDays, setMilestoneDays] = useState(0);
 
