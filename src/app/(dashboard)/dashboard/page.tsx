@@ -22,6 +22,8 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 
+const DASHBOARD_TOUR_STORAGE_KEY = "momentsai_dashboard_tour_dismissed";
+
 export default function MyWebsitesPage() {
   const supabase = createClient();
   interface MomentItem {
@@ -48,6 +50,22 @@ export default function MyWebsitesPage() {
   const [occasionFilter, setOccasionFilter] = useState('all');
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; slug: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem(DASHBOARD_TOUR_STORAGE_KEY);
+    if (!dismissed) {
+      const timer = setTimeout(() => {
+        setShowTour(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const dismissTour = () => {
+    localStorage.setItem(DASHBOARD_TOUR_STORAGE_KEY, "true");
+    setShowTour(false);
+  };
 
   useEffect(() => {
     async function loadUserMoments() {
@@ -138,13 +156,52 @@ export default function MyWebsitesPage() {
             Track analytics, edit settings, and manage generated websites.
           </p>
         </div>
-        <Link 
-          href="/generator" 
-          className="glowing-button flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-violet-600 to-pink-500 text-white font-bold shadow-md hover:shadow-lg transition-all text-sm shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4.5 h-4.5" />
-          Create New Moment
-        </Link>
+        <div className="relative inline-block">
+          <Link 
+            href="/generator" 
+            className="glowing-button flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-violet-600 to-pink-500 text-white font-bold shadow-md hover:shadow-lg transition-all text-sm shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4.5 h-4.5" />
+            Create New Moment
+          </Link>
+          
+          <AnimatePresence>
+            {showTour && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                role="status"
+                aria-live="polite"
+                className="absolute top-full mt-3 right-0 z-30 w-72 rounded-3xl border border-zinc-200/80 bg-white/95 backdrop-blur-md shadow-xl p-4 max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto"
+              >
+                <div className="space-y-3 text-left">
+                  <h3 className="font-black text-zinc-950 text-base leading-snug">
+                    Welcome to MomentsAI 👋
+                  </h3>
+                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
+                    Start by clicking Create New Moment to launch the guided wizard and build a personalized memory website.
+                  </p>
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      onClick={dismissTour}
+                      className="text-zinc-500 hover:text-zinc-800 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Skip Tour
+                    </button>
+                    <button
+                      onClick={dismissTour}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-pink-500 text-white font-bold text-xs shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Dynamic Analytics KPI Aggregates Card Deck */}
