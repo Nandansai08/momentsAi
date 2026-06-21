@@ -18,7 +18,11 @@ import {
   Mail,
   LoaderCircle,
   Volume,
-  ArrowUp
+  ArrowUp,
+  Star,
+  Camera,
+  Gift,
+  MapPin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
@@ -219,6 +223,24 @@ function parseMusicEmbed(url: string | null | undefined) {
     embedUrl: targetUrl
   };
 }
+
+const renderTimelineIcon = (iconName: string | undefined) => {
+  if (!iconName) return null;
+  switch (iconName) {
+    case 'Heart':
+      return <Heart className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />;
+    case 'Star':
+      return <Star className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />;
+    case 'Camera':
+      return <Camera className="w-3.5 h-3.5 text-primary shrink-0" />;
+    case 'Gift':
+      return <Gift className="w-3.5 h-3.5 text-primary shrink-0" />;
+    case 'MapPin':
+      return <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />;
+    default:
+      return iconName;
+  }
+};
 
 export default function MomentRenderClient({ initialMoment, initialMedia, initialGuestbook }: Props) {
   const supabase = createClient();
@@ -1038,7 +1060,7 @@ useEffect(() => {
                 >
                   {/* Glowing pulsing node */}
                   <div className="absolute -left-[37px] top-1 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs shadow-md transition-all group-hover:scale-110">
-                    {item.icon}
+                    {renderTimelineIcon(item.icon)}
                   </div>
                   
                   <div 
