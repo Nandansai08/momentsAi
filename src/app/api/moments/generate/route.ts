@@ -35,7 +35,8 @@ export async function POST(request: Request) {
       password_string,
       secret_message,
       media_urls,
-      music_url
+      music_url,
+      custom_colors
     } = body;
 
     if (!occasion || !recipient_name || !sender_name) {
@@ -100,7 +101,21 @@ export async function POST(request: Request) {
         password_hash: passwordHash,
         secret_message,
         music_url,
-        is_published: true
+        is_published: true,
+        custom_colors: (() => {
+          const VALID_SLATE_VARIANTS = [
+            'cool_gray',
+            'warm_white',
+            'cream',
+          ] as const;
+
+          return custom_colors?.slateVariant &&
+            VALID_SLATE_VARIANTS.includes(
+              custom_colors.slateVariant as typeof VALID_SLATE_VARIANTS[number]
+            )
+              ? { slateVariant: custom_colors.slateVariant }
+              : null;
+        })()
       })
       .select()
       .single();

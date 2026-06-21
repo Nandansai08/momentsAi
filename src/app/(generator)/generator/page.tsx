@@ -22,6 +22,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { SlateBgVariant, SLATE_BACKGROUNDS } from '@/lib/utils';
 
 const occasionsList = [
   { id: 'birthday', label: 'Birthday', icon: Gift, color: 'from-pink-500 to-rose-500' },
@@ -287,6 +288,7 @@ export default function GeneratorPage() {
 
   // Styling / Toggles
   const [themeId, setThemeId] = useState('romantic');
+  const [slateVariant, setSlateVariant] = useState<SlateBgVariant>('cool_gray');
   const [sections] = useState({
     music: true,
     gallery: true,
@@ -333,6 +335,14 @@ export default function GeneratorPage() {
           if (parsed.memories) setMemories(parsed.memories);
           if (parsed.achievements) setAchievements(parsed.achievements);
           if (parsed.themeId) setThemeId(parsed.themeId);
+          if (
+            parsed.slateVariant &&
+            parsed.slateVariant in SLATE_BACKGROUNDS
+          ) {
+            setSlateVariant(parsed.slateVariant);
+          } else {
+            setSlateVariant('cool_gray');
+          }
           if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
           if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
         }, 0);
@@ -347,13 +357,13 @@ export default function GeneratorPage() {
     const draftData = {
       occasion, recipientName, senderName, relationship, eventDate,
       customTitle, personalMessage, memories, achievements, themeId,
-      musicUrl, secretMessage
+      slateVariant, musicUrl, secretMessage
     };
     localStorage.setItem('momentsai_wizard_draft', JSON.stringify(draftData));
   }, [
     occasion, recipientName, senderName, relationship, eventDate,
     customTitle, personalMessage, memories, achievements, themeId,
-    musicUrl, secretMessage
+    slateVariant, musicUrl, secretMessage
   ]);
 
   const clearDraft = () => {
@@ -372,6 +382,8 @@ export default function GeneratorPage() {
       setSecretMessage('');
       setPasswordProtection(false);
       setPasswordString('');
+      setThemeId('romantic');
+      setSlateVariant('cool_gray');
       setStep(1);
     }
   };
@@ -480,7 +492,8 @@ export default function GeneratorPage() {
         password_hash: passwordString || null,
         secret_message: secretMessage || null,
         media_urls: uploadedFiles.map(file => file.url),
-        music_url: musicUrl || null
+        music_url: musicUrl || null,
+        custom_colors: themeId === 'minimal' ? { slateVariant } : null
       };
 
       const response = await fetch('/api/moments/generate', {
@@ -526,14 +539,16 @@ export default function GeneratorPage() {
           bulletColor: 'bg-white/20 border-white/10 text-indigo-200',
           buttonClass: 'bg-indigo-600 text-white'
         };
-      case 'minimal':
+      case 'minimal': {
+        const slateBg = SLATE_BACKGROUNDS[slateVariant] || SLATE_BACKGROUNDS.cool_gray;
         return {
-          bg: 'bg-gradient-to-b from-zinc-50 to-zinc-200 font-mono text-zinc-900',
+          bg: `bg-gradient-to-b ${slateBg.preview} font-mono text-zinc-900`,
           card: 'bg-white/95 border-zinc-200 text-zinc-900',
           accentText: 'text-zinc-500',
           bulletColor: 'bg-zinc-100 border-zinc-200 text-zinc-600',
           buttonClass: 'bg-zinc-800 text-white'
         };
+      }
       case 'luxury':
         return {
           bg: 'bg-gradient-to-b from-stone-900 to-black font-serif text-amber-100',
@@ -794,16 +809,33 @@ export default function GeneratorPage() {
                           key={item.id}
                           type="button"
                           onClick={() => setOccasion(item.id)}
-                          className={`p-4 rounded-2.5xl border transition-all text-left flex flex-col justify-between h-28 cursor-pointer ${
-                            isSelected 
-                              ? 'bg-violet-500/5 border-violet-500 shadow-md shadow-violet-500/5 text-violet-950 font-black' 
-                              : 'bg-zinc-50/50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-700'
+                          className={`relative rounded-2.5xl transition-all cursor-pointer ${
+                            isSelected
+                              ? 'p-0.5 bg-gradient-to-r from-violet-600 to-pink-500 ring-4 ring-primary-500/20'
+                              : ''
                           }`}
                         >
-                          <div className={`w-8.5 h-8.5 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-sm ${isSelected ? 'text-violet-600' : 'text-zinc-500'}`}>
-                            <IconComp className="w-4.5 h-4.5" />
+                          {/* Inner card maintaining original styling */}
+                          <div
+                            className={`flex flex-col p-4 justify-between h-28 w-full rounded-2.5xl border transition-colors text-left ${
+                              isSelected
+                                ? 'bg-violet-500/5 border-transparent shadow-md shadow-violet-500/5 text-violet-950 font-black'
+                                : 'bg-zinc-50/50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-700'
+                            }`}
+                          >
+                            <div
+                              className={`w-8.5 h-8.5 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-sm ${
+                                isSelected ? 'text-violet-600' : 'text-zinc-500'
+                              }`}
+                            >
+                              <IconComp className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-xs font-bold">{item.label}</span>
                           </div>
-                          <span className="text-xs font-bold">{item.label}</span>
+                          {/* Check badge for selected card */}
+                          {isSelected && (
+                            <Check className="absolute top-1 right-1 w-4 h-4 text-white bg-primary-500 rounded-full p-0.5" />
+                          )}
                         </button>
                       );
                     })}
@@ -1041,9 +1073,74 @@ export default function GeneratorPage() {
                     </div>
                   </div>
 
+                  {themeId === 'minimal' && (
+                    <div className="space-y-3 pt-4 border-t border-zinc-200 animate-in fade-in-50 duration-200">
+                      <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">Slate Background Color Variant</label>
+                      <div 
+                        role="radiogroup"
+                        aria-label="Slate background color"
+                        className="grid grid-cols-3 gap-3"
+                      >
+                        {[
+                          { id: 'cool_gray', name: 'Cool Gray', desc: 'Default gray background' },
+                          { id: 'warm_white', name: 'Warm White', desc: 'Soft warm background' },
+                          { id: 'cream', name: 'Cream', desc: 'Warm amber background' },
+                        ].map((variant) => {
+                          const isVariantSelected = slateVariant === variant.id;
+                          const slateBg = SLATE_BACKGROUNDS[variant.id as SlateBgVariant];
+                          return (
+                            <button
+                              key={variant.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={isVariantSelected}
+                              tabIndex={isVariantSelected ? 0 : -1}
+                              id={`slate-variant-${variant.id}`}
+                              onClick={() => setSlateVariant(variant.id as SlateBgVariant)}
+                              onKeyDown={(e) => {
+                                const variants = ['cool_gray', 'warm_white', 'cream'] as const;
+                                const currentIndex = variants.indexOf(slateVariant);
+                                let targetIndex = -1;
+                                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                                  targetIndex = (currentIndex + 1) % variants.length;
+                                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                                  targetIndex = (currentIndex - 1 + variants.length) % variants.length;
+                                }
+                                if (targetIndex !== -1) {
+                                  e.preventDefault();
+                                  const nextVariant = variants[targetIndex];
+                                  setSlateVariant(nextVariant);
+                                  setTimeout(() => {
+                                    document.getElementById(`slate-variant-${nextVariant}`)?.focus();
+                                  }, 0);
+                                }
+                              }}
+                              className={`p-3.5 rounded-2xl border transition-all text-left flex flex-col justify-between h-24 cursor-pointer ${
+                                isVariantSelected
+                                  ? 'bg-zinc-50 border-violet-500 shadow-md shadow-violet-500/5 text-zinc-900 font-bold'
+                                  : 'bg-[#faf9f6]/40 border-zinc-200 hover:border-zinc-300 text-zinc-700'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <span className="text-xs font-bold">{variant.name}</span>
+                                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${isVariantSelected ? 'border-violet-600 bg-violet-600 text-white' : 'border-zinc-300 bg-white'}`}>
+                                  {isVariantSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className={`w-6 h-6 rounded-md border border-zinc-300 bg-gradient-to-b ${slateBg.preview}`} />
+                                <span className="text-[9px] opacity-75 leading-tight font-medium line-clamp-2">{variant.desc}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Dynamic Music Paste Embed Area */}
                   {sections.music && (
-                    <div className="space-y-3.5 pt-4 border-t border-zinc-150">
+                    <div className="space-y-3.5 pt-4 border-t border-zinc-200">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-bold text-zinc-500 uppercase pl-1 tracking-wider flex items-center gap-2">
                           <Music className="w-4 h-4 text-primary" />
@@ -1112,7 +1209,7 @@ export default function GeneratorPage() {
                   )}
 
                   {/* Privacy protection panel */}
-                  <div className="space-y-4 pt-4 border-t border-zinc-150">
+                  <div className="space-y-4 pt-4 border-t border-zinc-200">
                     <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">Security Settings</label>
                     <div className="space-y-4">
                       <button
@@ -1155,7 +1252,7 @@ export default function GeneratorPage() {
             </div>
 
             {/* Stepper Navigation Buttons */}
-            <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-150">
+            <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-200">
               {step > 1 ? (
                 <button
                   type="button"

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   ExternalLink, 
@@ -46,6 +46,8 @@ export default function MyWebsitesPage() {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [occasionFilter, setOccasionFilter] = useState('all');
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; slug: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function loadUserMoments() {
@@ -72,19 +74,33 @@ export default function MyWebsitesPage() {
     loadUserMoments();
   }, [supabase]);
 
-  const handleDeleteMoment = async (id: string) => {
-    if (!confirm("Are you absolutely sure you want to delete this website? This action is irreversible.")) return;
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && deleteTarget && !isDeleting) {
+        setDeleteTarget(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deleteTarget, isDeleting]);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget || isDeleting) return;
+    setIsDeleting(true);
 
     try {
       const { error } = await supabase
         .from('moments')
         .delete()
-        .eq('id', id);
+        .eq('id', deleteTarget.id);
 
       if (error) throw error;
-      setMoments(moments.filter(m => m.id !== id));
+      setMoments(prev => prev.filter(m => m.id !== deleteTarget.id));
+      setDeleteTarget(null);
     } catch {
       alert("Failed to delete moment. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -333,7 +349,7 @@ export default function MyWebsitesPage() {
                   </div>
 
                   <button 
-                    onClick={() => handleDeleteMoment(moment.id)}
+                    onClick={() => setDeleteTarget({ id: moment.id, slug: moment.slug })}
                     className="p-2.5 rounded-xl text-red-500 hover:bg-red-500/5 transition-colors cursor-pointer"
                     title="Delete Website"
                   >
@@ -345,6 +361,78 @@ export default function MyWebsitesPage() {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                if (!isDeleting) setDeleteTarget(null);
+              }}
+              className="fixed inset-0 bg-zinc-950/40 backdrop-blur-sm"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-zinc-200/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md z-10"
+            >
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100 shadow-inner">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-zinc-950">Delete Moment?</h3>
+                  <p className="text-sm font-medium text-zinc-500 leading-relaxed">
+                    Are you sure you want to delete this moment? This action is irreversible and will permanently delete the website at:
+                  </p>
+                  <div className="mt-2 inline-block px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-150 text-xs font-bold text-zinc-700">
+                    /m/{deleteTarget.slug}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full pt-2">
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => setDeleteTarget(null)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300 text-zinc-500 hover:text-zinc-900 transition-colors text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={handleConfirmDelete}
+                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Deleting...
+                      </>
+                    ) : (
+                      "Confirm Delete"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
