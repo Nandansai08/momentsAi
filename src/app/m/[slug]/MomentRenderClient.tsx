@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
-import { formatDate, calculateReadTime } from '@/lib/utils';
+import { formatDate, calculateReadTime, SLATE_BACKGROUNDS, SlateBgVariant } from '@/lib/utils';
 
 interface MomentData {
   id: string;
@@ -65,6 +65,7 @@ interface MomentData {
   ai_quotes?: Array<{ quote: string; author: string }> | null;
   ai_poem?: string | null;
   themes?: { slug: string } | null;
+  custom_colors?: { slateVariant?: SlateBgVariant; } | null;
 }
 
 interface MediaItem {
@@ -114,7 +115,7 @@ const themeStyles = {
     neonText: "text-indigo-600 font-black"
   },
   minimal: {
-    bg: "from-zinc-50 via-zinc-100 to-zinc-150",
+    bg: "from-zinc-50 via-zinc-100 to-zinc-200",
     text: "text-zinc-900",
     subText: "text-zinc-500 font-bold",
     accent: "bg-zinc-900 text-white",
@@ -222,7 +223,14 @@ function parseMusicEmbed(url: string | null | undefined) {
 export default function MomentRenderClient({ initialMoment, initialMedia, initialGuestbook }: Props) {
   const supabase = createClient();
   const themeSlug = (initialMoment.themes?.slug || 'romantic') as keyof typeof themeStyles;
-  const style = themeStyles[themeSlug] || themeStyles.romantic;
+  const style = { ...(themeStyles[themeSlug] || themeStyles.romantic) };
+
+  // Apply custom slate variant background if the minimal theme is active
+  if (themeSlug === 'minimal') {
+    const slateVariant = (initialMoment.custom_colors?.slateVariant ?? 'cool_gray') as SlateBgVariant;
+    const slateBg = SLATE_BACKGROUNDS[slateVariant] || SLATE_BACKGROUNDS.cool_gray;
+    style.bg = slateBg.renderer;
+  }
   const embedData = parseMusicEmbed(initialMoment.music_url);
   const letterText = initialMoment.ai_letter || initialMoment.personal_message;
   const readTime = calculateReadTime(initialMoment.ai_story_narrative);
@@ -286,6 +294,7 @@ useEffect(() => {
   const [isLetterOpen, setIsLetterOpen] = useState(false);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [secretRevealed, setSecretRevealed] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const SCROLL_TOP_THRESHOLD = 500;
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -318,11 +327,18 @@ useEffect(() => {
   const [copiedLink, setCopiedLink] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up copy timeout on unmount
+  // Mobile Quick Share state
+  const [quickShareTooltip, setQuickShareTooltip] = useState<string | null>(null);
+  const quickCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up copy timeouts on unmount
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) {
         clearTimeout(copyTimeoutRef.current);
+      }
+      if (quickCopyTimeoutRef.current) {
+        clearTimeout(quickCopyTimeoutRef.current);
       }
     };
   }, []);
@@ -485,6 +501,52 @@ useEffect(() => {
       }, 1500);
     } catch (err) {
       console.error("Failed to copy link to clipboard:", err);
+    }
+  };
+
+  const handleQuickShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const shareData = {
+      title: initialMoment.custom_title || `To ${initialMoment.recipient_name}`,
+      text: "Explore this gorgeous digital memories page on MomentsAI!",
+      url: window.location.href,
+    };
+
+    const triggerTooltip = (msg: string) => {
+      if (quickCopyTimeoutRef.current) {
+        clearTimeout(quickCopyTimeoutRef.current);
+      }
+      setQuickShareTooltip(msg);
+      quickCopyTimeoutRef.current = setTimeout(() => {
+        setQuickShareTooltip(null);
+      }, 1500);
+    };
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        // user cancelled share sheet
+        if ((error as DOMException)?.name === "AbortError") {
+          return;
+        }
+        console.error("Native share failed:", error);
+      }
+    }
+
+    // Clipboard fallback
+    if (typeof window !== 'undefined' && window.isSecureContext && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        triggerTooltip("Copied!");
+      } catch (err) {
+        console.error("Clipboard fallback copy failed:", err);
+        triggerTooltip("Copy failed");
+      }
+    } else {
+      triggerTooltip("Unable to share");
     }
   };
 
@@ -975,19 +1037,36 @@ useEffect(() => {
             
             {/* Elegant multi-column masonry grid spacing */}
             <div className="columns-2 md:columns-3 gap-4 space-y-4">
-              {initialMedia.map((photo) => (
-                <div 
-                  key={photo.id}
-                  onClick={() => setActivePhoto(photo.url)}
-                  className="relative rounded-2xl border overflow-hidden bg-background break-inside-avoid shadow group cursor-zoom-in border-border/60 hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  <img src={photo.url} alt="Collage Photo" className="object-cover w-full h-auto" />
-                  {/* Polaroid hover action */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <Maximize2 className="w-5 h-5 text-white" />
+              {initialMedia.map((photo) => {
+                const isLoaded = !!loadedImages[photo.id];
+                const handleResolve = () => setLoadedImages((prev) => ({ ...prev, [photo.id]: true }));
+                return (
+                  <div 
+                    key={photo.id}
+                    onClick={() => setActivePhoto(photo.url)}
+                    className="relative rounded-2xl border overflow-hidden bg-background break-inside-avoid shadow group cursor-zoom-in border-border/60 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    {/* Placeholder skeleton */}
+                    {!isLoaded && (
+                      <div className="absolute inset-0 bg-secondary/50 animate-pulse w-full h-full" />
+                    )}
+                    <img 
+                      src={photo.url} 
+                      alt="Collage Photo" 
+                      loading="lazy"
+                      onLoad={handleResolve}
+                      onError={handleResolve}
+                      className={`object-cover w-full h-auto transition-opacity duration-500 ease-in-out ${
+                        isLoaded ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
+                    {/* Polaroid hover action */}
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <Maximize2 className="w-5 h-5 text-white" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
@@ -1207,6 +1286,35 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
+      {/* Mobile Floating Quick-Share Button */}
+      <div className="md:hidden fixed bottom-6 right-6 z-40">
+        <div className="relative">
+          <AnimatePresence>
+            {quickShareTooltip && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+                exit={{ opacity: 0, y: 8, x: "-50%", scale: 0.95 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="absolute bottom-full left-1/2 mb-3 px-2.5 py-1.5 rounded-md bg-zinc-950 text-white text-[11px] font-bold shadow-xl whitespace-nowrap pointer-events-none z-50 flex items-center justify-center"
+                role="status"
+                aria-live="polite"
+              >
+                {quickShareTooltip}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-950" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button
+            type="button"
+            onClick={handleQuickShare}
+            className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/10 shadow-lg flex items-center justify-center transition-transform active:scale-95 text-foreground"
+            aria-label="Share this moment"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
       {/* Floating Scroll To Top Button */}
       <AnimatePresence>
         {showScrollTop && (
