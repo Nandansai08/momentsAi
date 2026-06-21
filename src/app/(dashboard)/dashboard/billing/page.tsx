@@ -4,80 +4,80 @@ import { Check, Sparkles, Receipt } from 'lucide-react';
 
 export default function BillingPage() {
   return (
-    <div className="space-y-8 max-w-3xl">
+    <div className="space-y-8 max-w-3xl text-foreground">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-zinc-950">Billing & Subscriptions</h1>
-        <p className="text-zinc-500 text-sm font-semibold mt-1.5">
+        <h1 className="text-3xl font-black tracking-tight text-foreground">Billing & Subscriptions</h1>
+        <p className="text-muted-foreground text-sm font-semibold mt-1.5">
           View your current plan, check billing periods, and review your payment invoices.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {/* Active plan card - takes 2 cols */}
-        <div className="md:col-span-2 bg-white p-8 rounded-[32px] border border-zinc-200 shadow-sm flex flex-col justify-between space-y-6">
+        <div className="md:col-span-2 bg-card p-8 rounded-[32px] border border-border shadow-sm flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-violet-50 text-[#8b5cf6] border border-violet-100 text-[10px] font-black uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-violet-50 dark:bg-violet-950/30 text-primary border border-violet-100 dark:border-violet-900/50 text-[10px] font-black uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" /> Pro Plan Active
             </span>
             <div>
-              <h3 className="text-2xl font-black text-zinc-950">Lifetime Pro Membership</h3>
-              <p className="text-zinc-500 text-xs font-semibold mt-1 leading-relaxed">
+              <h3 className="text-2xl font-black text-foreground">Lifetime Pro Membership</h3>
+              <p className="text-muted-foreground text-xs font-semibold mt-1 leading-relaxed">
                 Congratulations! You have been granted lifetime early-adopter access, completely unlocking all premium generators and themes.
               </p>
             </div>
           </div>
 
-          <div className="py-5 border-y border-zinc-100 grid grid-cols-2 gap-4">
+          <div className="py-5 border-y border-border grid grid-cols-2 gap-4">
             <div>
-              <span className="text-[10px] uppercase font-black tracking-wider text-zinc-400">Subscription Cost</span>
-              <p className="text-lg font-black text-zinc-950">₹0 <span className="text-xs text-zinc-400 font-bold line-through">₹999</span></p>
+              <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Subscription Cost</span>
+              <p className="text-lg font-black text-foreground">₹0 <span className="text-xs text-muted-foreground font-bold line-through">₹999</span></p>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-black tracking-wider text-zinc-400">Renewal Cycle</span>
-              <p className="text-lg font-black text-zinc-950">Lifetime Access</p>
+              <span className="text-[10px] uppercase font-black tracking-wider text-muted-foreground">Renewal Cycle</span>
+              <p className="text-lg font-black text-foreground">Lifetime Access</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold">
+          <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold">
             <Check className="w-4 h-4" />
             <span>Lifetime Pro benefits applied (Early Access Promo Code)</span>
           </div>
         </div>
 
         {/* Invoice Summary panel */}
-        <div className="p-6 rounded-[32px] border border-zinc-200 bg-white flex flex-col justify-between shadow-sm">
+        <div className="p-6 rounded-[32px] border border-border bg-card flex flex-col justify-between shadow-sm">
           <div className="space-y-4">
-            <div className="flex items-center gap-1.5 text-zinc-400 uppercase font-black text-[10px] pl-0.5 tracking-wider">
+            <div className="flex items-center gap-1.5 text-muted-foreground uppercase font-black text-[10px] pl-0.5 tracking-wider">
               <Receipt className="w-4 h-4" />
               <span>Invoice Recapitulation</span>
             </div>
             
-            <ul className="space-y-3.5 text-xs text-zinc-600 font-semibold">
+            <ul className="space-y-3.5 text-xs text-foreground/80 font-semibold">
               <li className="flex justify-between">
                 <span>Lifetime Pro Licence</span>
-                <span className="text-zinc-400 line-through">₹999</span>
+                <span className="text-muted-foreground line-through">₹999</span>
               </li>
-              <li className="flex justify-between text-emerald-600">
+              <li className="flex justify-between text-emerald-600 dark:text-emerald-400">
                 <span>Early Access Discount</span>
                 <span>-₹999</span>
               </li>
-              <li className="border-t border-zinc-100 pt-3 flex justify-between font-black text-zinc-950 text-sm">
+              <li className="border-t border-border pt-3 flex justify-between font-black text-foreground text-sm">
                 <span>Total Amount Paid</span>
                 <span>₹0</span>
               </li>
             </ul>
           </div>
 
-          <div className="pt-4 border-t border-zinc-100 text-[10px] text-zinc-400 leading-normal font-semibold">
+          <div className="pt-4 border-t border-border text-[10px] text-muted-foreground leading-normal font-semibold">
             All transactional hooks are pre-authorized. No future credit card drafts will be processed for this licence.
           </div>
         </div>
       </div>
 
       {/* Plan Features Grid */}
-      <div className="p-7.5 rounded-[32px] border border-zinc-200 bg-white shadow-sm space-y-4">
-        <h3 className="text-sm font-black uppercase tracking-wider text-zinc-400">Included Premium Privileges</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-zinc-600 leading-relaxed">
+      <div className="p-7.5 rounded-[32px] border border-border bg-card shadow-sm space-y-4">
+        <h3 className="text-sm font-black uppercase tracking-wider text-muted-foreground">Included Premium Privileges</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-foreground/80 leading-relaxed">
           {[
             "Create unlimited dynamic moment websites",
             "Unlimited AWS Bedrock Claude AI content drafts",
@@ -99,3 +99,4 @@ export default function BillingPage() {
     </div>
   );
 }
+
