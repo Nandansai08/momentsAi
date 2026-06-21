@@ -19,7 +19,8 @@ import {
   X,
   FileText,
   Eye,
-  Trash2
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { SlateBgVariant, SLATE_BACKGROUNDS } from '@/lib/utils';
@@ -267,6 +268,7 @@ export default function GeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("Analyzing your memories...");
   const [memoryError, setMemoryError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
 
   // Form parameters
@@ -369,6 +371,19 @@ export default function GeneratorPage() {
     slateVariant, musicUrl, secretMessage
   ]);
 
+  // Clear error message when inputs change or step changes
+  useEffect(() => {
+    if (errorMsg) {
+      setTimeout(() => setErrorMsg(null), 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    step, occasion, recipientName, senderName, relationship, eventDate,
+    customTitle, personalMessage, memories, achievements, themeId,
+    slateVariant, musicUrl, secretMessage, passwordProtection, passwordString,
+    uploadedFiles
+  ]);
+
   const clearDraft = () => {
     if (confirm("Reset the form and start fresh? This clears your draft.")) {
       localStorage.removeItem('momentsai_wizard_draft');
@@ -442,23 +457,26 @@ export default function GeneratorPage() {
 
   const handleNextStep = () => {
     if (step === 1 && !occasion) {
-      alert("Please select an occasion.");
+      setErrorMsg("Please select an occasion.");
       return;
     }
     if (step === 2 && (!recipientName || !senderName)) {
-      alert("Recipient Name and Sender Name are required.");
+      setErrorMsg("Recipient Name and Sender Name are required.");
       return;
     }
+    setErrorMsg(null);
     setStep(step + 1);
   };
 
   const handlePrevStep = () => {
+    setErrorMsg(null);
     setStep(step - 1);
   };
 
   const handleCompileWebsite = async () => {
+    setErrorMsg(null);
     if (personalMessage && personalMessage.length > MAX_CHARS) {
-      alert(`Personal message cannot exceed ${MAX_CHARS} characters.`);
+      setErrorMsg(`Personal message cannot exceed ${MAX_CHARS} characters.`);
       return;
     }
     setLoading(true);
@@ -528,7 +546,7 @@ export default function GeneratorPage() {
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong.";
-      alert(message);
+      setErrorMsg(message);
       setLoading(false);
     }
   };
@@ -1290,6 +1308,28 @@ export default function GeneratorPage() {
                 </motion.div>
               )}
             </div>
+
+            {/* Inline Premium Error Banner */}
+            <AnimatePresence>
+              {errorMsg && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div 
+                    role="alert"
+                    aria-live="polite"
+                    className="flex items-start gap-2.5 p-3.5 mt-4 rounded-xl bg-red-500/10 border border-red-200/50 backdrop-blur-md text-red-600 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/30 shadow-sm text-xs font-semibold text-left"
+                  >
+                    <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Stepper Navigation Buttons */}
             <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-200">
