@@ -1,3 +1,5 @@
+import { SlateBgVariant } from '@/lib/utils';
+
 export type OccasionType =
   | 'birthday'
   | 'anniversary'
@@ -28,6 +30,7 @@ export interface ThemeConfig {
     accent: string;
     primary: string;
     cardBg: string;
+    slateVariant?: SlateBgVariant;
   };
   fonts: {
     title: string;
