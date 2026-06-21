@@ -32,6 +32,7 @@
   --animate-spin-slow: spin 20s linear infinite;
   --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-sparkle: sparkle 2s ease-in-out infinite;
+  --animate-dashboard-shimmer: dashboard-shimmer 2s infinite linear;
 
   @keyframes float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -40,6 +41,10 @@
   @keyframes sparkle {
     0%, 100% { opacity: 0.3; transform: scale(0.8); }
     50% { opacity: 1; transform: scale(1.2); }
+  }
+  @keyframes dashboard-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
 
@@ -185,3 +190,26 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Dashboard Skeleton Shimmer */
+.dashboard-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f4f4f5 25%,
+    #e4e4e7 50%,
+    #f4f4f5 75%
+  );
+  background-size: 200% 100%;
+  animation: dashboard-shimmer 2s infinite linear;
+}
+
+.dark .dashboard-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #27272a 25%,
+    #3f3f46 50%,
+    #27272a 75%
+  );
+  background-size: 200% 100%;
+}
+

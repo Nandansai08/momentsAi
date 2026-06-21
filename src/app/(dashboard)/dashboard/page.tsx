@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
+import DashboardSkeleton from '@/components/DashboardSkeleton';
 
 export default function MyWebsitesPage() {
   const supabase = createClient();
@@ -224,11 +225,7 @@ export default function MyWebsitesPage() {
 
       {/* Main Workspace Contents */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-72 rounded-[32px] border border-zinc-200 bg-white animate-pulse" />
-          ))}
-        </div>
+        <DashboardSkeleton />
       ) : moments.length === 0 ? (
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
