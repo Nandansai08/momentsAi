@@ -185,3 +185,17 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+.cursor-heart {
+  cursor: url("/cursors/heart.png") 12 12, auto;
+}
+
+.cursor-heart-active {
+  cursor: url("/cursors/heart-active.png") 12 12, auto;
+}
+
+@media (hover: none) {
+  .cursor-heart,
+  .cursor-heart-active {
+    cursor: auto;
+  }
+}
