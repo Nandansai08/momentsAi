@@ -109,6 +109,8 @@ CREATE TABLE public.moments (
   secret_message TEXT,
   
   -- Metadata
+  meta_title TEXT,
+  meta_description TEXT,
   custom_domain TEXT UNIQUE,
   is_published BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,

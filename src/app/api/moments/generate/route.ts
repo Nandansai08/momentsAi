@@ -37,7 +37,9 @@ export async function POST(request: Request) {
       secret_message,
       media_urls,
       music_url,
-      custom_colors
+      custom_colors,
+      metaTitle,
+      metaDescription
     } = body;
 
     if (!occasion || !recipient_name || !sender_name) {
@@ -111,6 +113,8 @@ export async function POST(request: Request) {
         event_date,
         custom_title: custom_title || aiData.ai_title,
         personal_message,
+        meta_title: metaTitle?.trim() || null,
+        meta_description: metaDescription?.trim() || null,
         favorite_memories,
         special_moments,
         theme_id: themeRecord?.id || null,

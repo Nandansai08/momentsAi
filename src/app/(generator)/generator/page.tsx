@@ -364,6 +364,8 @@ export default function GeneratorPage() {
   const [passwordString, setPasswordString] = useState('');
   const [secretMessage, setSecretMessage] = useState('');
   const [musicUrl, setMusicUrl] = useState('');
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
 
   // Mobile preview layout overlay control
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
@@ -410,6 +412,8 @@ export default function GeneratorPage() {
           }
           if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
           if (parsed.secretMessage) setSecretMessage(parsed.secretMessage);
+          if (parsed.metaTitle) setMetaTitle(parsed.metaTitle);
+          if (parsed.metaDescription) setMetaDescription(parsed.metaDescription);
         }, 0);
       }
     } catch (e) {
@@ -422,13 +426,13 @@ export default function GeneratorPage() {
     const draftData = {
       occasion, recipientName, senderName, relationship, eventDate,
       customTitle, personalMessage, memories, achievements, themeId,
-      slateVariant, musicUrl, secretMessage
+      slateVariant, musicUrl, secretMessage, metaTitle, metaDescription
     };
     localStorage.setItem('momentsai_wizard_draft', JSON.stringify(draftData));
   }, [
     occasion, recipientName, senderName, relationship, eventDate,
     customTitle, personalMessage, memories, achievements, themeId,
-    slateVariant, musicUrl, secretMessage
+    slateVariant, musicUrl, secretMessage, metaTitle, metaDescription
   ]);
 
   const clearDraft = () => {
@@ -445,6 +449,8 @@ export default function GeneratorPage() {
       setUploadedFiles([]);
       setMusicUrl('');
       setSecretMessage('');
+      setMetaTitle('');
+      setMetaDescription('');
       setPasswordProtection(false);
       setPasswordString('');
       setMemoryError(null);
@@ -523,6 +529,14 @@ export default function GeneratorPage() {
       alert(`Personal message cannot exceed ${MAX_CHARS} characters.`);
       return;
     }
+    if (metaTitle && metaTitle.length > 70) {
+      alert("Meta title cannot exceed 70 characters.");
+      return;
+    }
+    if (metaDescription && metaDescription.length > 160) {
+      alert("Meta description cannot exceed 160 characters.");
+      return;
+    }
     setLoading(true);
     setLoadingStatus("Connecting to Bedrock...");
     
@@ -569,7 +583,9 @@ export default function GeneratorPage() {
         secret_message: secretMessage || null,
         media_urls: uploadedFiles.map(file => file.url),
         music_url: musicUrl || null,
-        custom_colors: themeId === 'minimal' ? { slateVariant } : null
+        custom_colors: themeId === 'minimal' ? { slateVariant } : null,
+        metaTitle: metaTitle || null,
+        metaDescription: metaDescription || null
       };
 
       const response = await fetch('/api/moments/generate', {
@@ -1395,6 +1411,50 @@ export default function GeneratorPage() {
                           className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold"
                         />
                         <p className="text-[9px] text-zinc-400 pl-0.5 font-medium leading-relaxed">This secret message remains masked until the recipient taps a custom button, adding a fun element of mystery.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SEO & Metadata settings */}
+                  <div className="space-y-4 pt-4 border-t border-zinc-200 animate-in fade-in-50 duration-200">
+                    <label className="text-xs font-black text-zinc-400 pl-0.5 uppercase tracking-wider block">SEO & Social Meta Tags (Optional)</label>
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center pl-0.5">
+                          <label htmlFor="meta-title-input" className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Custom Meta Title</label>
+                          <span className="text-[9px] font-medium tracking-wider select-none text-zinc-400">
+                            {metaTitle.length} / 70
+                          </span>
+                        </div>
+                        <input
+                          id="meta-title-input"
+                          type="text"
+                          maxLength={70}
+                          placeholder="Special Birthday Surprise for Sarah"
+                          value={metaTitle}
+                          onChange={(e) => setMetaTitle(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold"
+                        />
+                        <p className="text-[9px] text-zinc-400 pl-0.5 font-medium leading-relaxed">Overrides the browser tab title and social sharing card title (max 70 chars).</p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center pl-0.5">
+                          <label htmlFor="meta-description-input" className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Custom Meta Description</label>
+                          <span className="text-[9px] font-medium tracking-wider select-none text-zinc-400">
+                            {metaDescription.length} / 160
+                          </span>
+                        </div>
+                        <textarea
+                          id="meta-description-input"
+                          rows={2}
+                          maxLength={160}
+                          placeholder="A heartfelt collection of memories, messages, and moments."
+                          value={metaDescription}
+                          onChange={(e) => setMetaDescription(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold resize-none"
+                        />
+                        <p className="text-[9px] text-zinc-400 pl-0.5 font-medium leading-relaxed">Overrides snippet displayed in search engines and shared link cards (max 160 chars).</p>
                       </div>
                     </div>
                   </div>
