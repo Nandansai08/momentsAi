@@ -27,6 +27,7 @@ import {
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate, calculateReadTime, SLATE_BACKGROUNDS, SlateBgVariant } from '@/lib/utils';
+import { getInitials, getAvatarColorClass } from '@/lib/avatar';
 
 interface MomentData {
   id: string;
@@ -85,6 +86,7 @@ interface GuestbookItem {
   message: string;
   created_at: string;
   is_approved?: boolean;
+  avatar_url?: string | null;
 }
 
 interface Props {
@@ -1278,12 +1280,30 @@ useEffect(() => {
             {/* List entries styled as note lists */}
             <div className="space-y-3.5 max-h-80 overflow-y-auto pr-2 scrollbar-none">
               {guestbook.map((entry: GuestbookItem, i: number) => (
-                <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 space-y-1 text-left relative overflow-hidden">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span>{entry.name}</span>
-                    <span className="opacity-55 text-[10px]">{formatDate(entry.created_at)}</span>
+                <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 text-left relative overflow-hidden flex gap-3.5 items-start">
+                  <div 
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border shadow-sm ${
+                      entry.avatar_url ? '' : getAvatarColorClass(entry.name)
+                    }`}
+                    aria-label={`${entry.name}'s Avatar`}
+                  >
+                    {entry.avatar_url ? (
+                      <img 
+                        src={entry.avatar_url} 
+                        alt="" 
+                        className="w-full h-full rounded-full object-cover" 
+                      />
+                    ) : (
+                      <span aria-hidden="true">{getInitials(entry.name)}</span>
+                    )}
                   </div>
-                  <p className="text-xs opacity-90 leading-relaxed text-left">{entry.message}</p>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex justify-between items-center text-xs font-bold">
+                      <span className="truncate">{entry.name}</span>
+                      <span className="opacity-55 text-[10px] shrink-0 pl-2">{formatDate(entry.created_at)}</span>
+                    </div>
+                    <p className="text-xs opacity-90 leading-relaxed text-left">{entry.message}</p>
+                  </div>
                 </div>
               ))}
             </div>

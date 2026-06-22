@@ -769,8 +769,19 @@ export default function GeneratorPage() {
         {sections.guestbook && (
           <div className={`p-4 rounded-2.5xl ${currentThemeStyles.card} border space-y-2`}>
             <span className={`text-[8px] uppercase tracking-wider font-black ${currentThemeStyles.accentText}`}>Signings Wall</span>
-            <div className="p-2 rounded-lg bg-black/5 text-[9px] font-medium leading-relaxed">
-              <strong>Alex:</strong> Celebrating this beautiful milestone! Absolute legend.
+            <div className="p-2 rounded-xl bg-black/5 flex gap-2 items-start text-left">
+              <div 
+                className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[8px] shrink-0 border shadow-sm bg-violet-500/10 text-violet-600 border-violet-200/30 backdrop-blur-md dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-900/30"
+                aria-label="Alex's Avatar"
+              >
+                <span aria-hidden="true">A</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center text-[9px] font-bold">
+                  <span className="truncate">Alex</span>
+                </div>
+                <p className="text-[9px] opacity-80 font-medium leading-relaxed">Celebrating this beautiful milestone! Absolute legend.</p>
+              </div>
             </div>
           </div>
         )}
