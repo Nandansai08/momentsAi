@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   const { data: moment } = await supabase
     .from('moments')
-    .select('custom_title, recipient_name, occasion, ai_story_narrative')
+    .select('custom_title, recipient_name, occasion, ai_story_narrative, meta_title, meta_description')
     .eq('slug', slug)
     .single();
 
@@ -24,8 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const title = moment.custom_title || `A Beautiful ${moment.occasion} Showcase for ${moment.recipient_name}`;
-  const description = moment.ai_story_narrative || `Explore this gorgeous digital memories tribute page created on MomentsAI.`;
+  const title = moment.meta_title 
+    || moment.custom_title 
+    || (moment.recipient_name ? `${moment.recipient_name}'s Special Moment` : null)
+    || "MomentsAI";
+    
+  const description = moment.meta_description 
+    || moment.ai_story_narrative 
+    || "A personalized memory experience created with MomentsAI.";
 
   return {
     title: `${title} | MomentsAI`,

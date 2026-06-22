@@ -124,6 +124,8 @@ export interface Moment {
   secret_message: string | null;
   
   // Deployment metadata
+  meta_title: string | null;
+  meta_description: string | null;
   custom_domain: string | null;
   is_published: boolean;
   created_at: string;
