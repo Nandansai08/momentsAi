@@ -20,6 +20,7 @@ import {
   FileText,
   Eye,
   Trash2,
+  AlertCircle,
   Star,
   Camera,
   MapPin
@@ -307,6 +308,7 @@ export default function GeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("Analyzing your memories...");
   const [memoryError, setMemoryError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
 
   // Form parameters
@@ -319,6 +321,14 @@ export default function GeneratorPage() {
   const [eventDate, setEventDate] = useState('');
   const [customTitle, setCustomTitle] = useState('');
   const [personalMessage, setPersonalMessage] = useState('');
+  // Date validation constants and state
+  const MAX_FUTURE_YEARS = 5;
+  const maxDateStr = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + MAX_FUTURE_YEARS);
+    return d.toISOString().split('T')[0];
+  })();
+  const [dateError, setDateError] = useState<string | null>(null);
   
   // Lists
   const [memoriesInput, setMemoriesInput] = useState('');
@@ -435,6 +445,19 @@ export default function GeneratorPage() {
     slateVariant, musicUrl, secretMessage, metaTitle, metaDescription
   ]);
 
+  // Clear error message when inputs change or step changes
+  useEffect(() => {
+    if (errorMsg) {
+      setTimeout(() => setErrorMsg(null), 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    step, occasion, recipientName, senderName, relationship, eventDate,
+    customTitle, personalMessage, memories, achievements, themeId,
+    slateVariant, musicUrl, secretMessage, passwordProtection, passwordString,
+    uploadedFiles
+  ]);
+
   const clearDraft = () => {
     if (confirm("Reset the form and start fresh? This clears your draft.")) {
       localStorage.removeItem('momentsai_wizard_draft');
@@ -510,23 +533,26 @@ export default function GeneratorPage() {
 
   const handleNextStep = () => {
     if (step === 1 && !occasion) {
-      alert("Please select an occasion.");
+      setErrorMsg("Please select an occasion.");
       return;
     }
     if (step === 2 && (!recipientName || !senderName)) {
-      alert("Recipient Name and Sender Name are required.");
+      setErrorMsg("Recipient Name and Sender Name are required.");
       return;
     }
+    setErrorMsg(null);
     setStep(step + 1);
   };
 
   const handlePrevStep = () => {
+    setErrorMsg(null);
     setStep(step - 1);
   };
 
   const handleCompileWebsite = async () => {
+    setErrorMsg(null);
     if (personalMessage && personalMessage.length > MAX_CHARS) {
-      alert(`Personal message cannot exceed ${MAX_CHARS} characters.`);
+      setErrorMsg(`Personal message cannot exceed ${MAX_CHARS} characters.`);
       return;
     }
     if (metaTitle && metaTitle.length > 70) {
@@ -537,13 +563,24 @@ export default function GeneratorPage() {
       alert("Meta description cannot exceed 160 characters.");
       return;
     }
+    // ----- Validation (run BEFORE loading UI) -----
+    if (eventDate && eventDate > maxDateStr) {
+      const errorMsg = 'Date cannot be more than 5 years in the future.';
+      setDateError(errorMsg);
+      alert(errorMsg);
+      return;
+    } else {
+      setDateError(null);
+    }
+
     setLoading(true);
     setLoadingStatus("Connecting to Bedrock...");
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Please sign in or log in to continue");
-
+      if (!user) {
+        throw new Error("Please sign in or log in to continue");
+      }
       const loadingMessages = [
         "Analyzing your prompt details...",
         "Calling AI generative engine...",
@@ -607,7 +644,7 @@ export default function GeneratorPage() {
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong.";
-      alert(message);
+      setErrorMsg(message);
       setLoading(false);
     }
   };
@@ -1011,9 +1048,25 @@ export default function GeneratorPage() {
                         id="event-date"
                         type="date"
                         value={eventDate}
-                        onChange={(e) => setEventDate(e.target.value)}
+                        max={maxDateStr}
+                        aria-invalid={!!dateError}
+                        aria-describedby={dateError ? "date-error" : undefined}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEventDate(val);
+                          if (val && val > maxDateStr) {
+                            setDateError('Date cannot be more than 5 years in the future.');
+                          } else {
+                            setDateError(null);
+                          }
+                        }}
                         className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold text-zinc-700"
                       />
+                      {dateError && (
+                        <p id="date-error" className="text-xs text-red-500 font-semibold pl-1 animate-in fade-in-50 slide-in-from-top-1 duration-200">
+                          {dateError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <label htmlFor="custom-title" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider">Custom Header Title (Optional)</label>
@@ -1461,6 +1514,28 @@ export default function GeneratorPage() {
                 </motion.div>
               )}
             </div>
+
+            {/* Inline Premium Error Banner */}
+            <AnimatePresence>
+              {errorMsg && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div 
+                    role="alert"
+                    aria-live="polite"
+                    className="flex items-start gap-2.5 p-3.5 mt-4 rounded-xl bg-red-500/10 border border-red-200/50 backdrop-blur-md text-red-600 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/30 shadow-sm text-xs font-semibold text-left"
+                  >
+                    <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Stepper Navigation Buttons */}
             <div className="flex items-center justify-between pt-8 mt-8 border-t border-zinc-200">

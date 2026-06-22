@@ -1,0 +1,97 @@
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working as intended"
+  },
+  {
+    "name": "regression",
+    "color": "b60205",
+    "description": "Previously working behavior has broken"
+  },
+  {
+    "name": "enhancement",
+    "color": "a2eeef",
+    "description": "Improvement to an existing feature"
+  },
+  {
+    "name": "feature-request",
+    "color": "0e8a16",
+    "description": "Proposal for a new feature or template"
+  },
+  {
+    "name": "documentation",
+    "color": "0075ca",
+    "description": "Improvements or additions to documentation"
+  },
+  {
+    "name": "needs-triage",
+    "color": "fbca04",
+    "description": "Awaiting initial review by a maintainer"
+  },
+  {
+    "name": "in-progress",
+    "color": "ededed",
+    "description": "Actively being worked on"
+  },
+  {
+    "name": "blocked",
+    "color": "b60205",
+    "description": "Cannot proceed until a dependency is resolved"
+  },
+  {
+    "name": "wontfix",
+    "color": "ffffff",
+    "description": "This will not be worked on"
+  },
+  {
+    "name": "duplicate",
+    "color": "cfd3d7",
+    "description": "This issue or PR already exists"
+  },
+  {
+    "name": "priority:low",
+    "color": "c5def5",
+    "description": "Nice-to-have, no urgency"
+  },
+  {
+    "name": "priority:medium",
+    "color": "fbca04",
+    "description": "Meaningful impact, schedule in a near-term milestone"
+  },
+  {
+    "name": "priority:high",
+    "color": "d93f0b",
+    "description": "Urgent — blocking users or critical workflows"
+  },
+  {
+    "name": "needs-review",
+    "color": "fef2c0",
+    "description": "Pull request awaiting maintainer review"
+  },
+  {
+    "name": "approved",
+    "color": "0e8a16",
+    "description": "Reviewed and approved, ready to merge"
+  },
+  {
+    "name": "changes-requested",
+    "color": "e99695",
+    "description": "Reviewer has requested changes before merge"
+  },
+  {
+    "name": "good-first-issue",
+    "color": "7057ff",
+    "description": "Good for newcomers — small, scoped, well-described"
+  },
+  {
+    "name": "help-wanted",
+    "color": "008672",
+    "description": "Extra attention or community contribution is welcome"
+  },
+  {
+    "name": "chore",
+    "color": "cfd3d7",
+    "description": "Refactor, tech debt, dependency or tooling work"
+  }
+]
