@@ -692,7 +692,8 @@ useEffect(() => {
 );
 }
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${style.bg} ${style.font} pb-24 relative overflow-x-hidden ${style.text} ${cursorClass}`} onMouseDown={() => setIsMouseDown(true)} onMouseUp={() => setIsMouseDown(false)} onMouseLeave={() => setIsMouseDown(false)}>
+    <>
+      <div className={`min-h-screen bg-gradient-to-b ${style.bg} ${style.font} pb-24 relative overflow-x-hidden ${style.text} ${cursorClass} print:hidden`} onMouseDown={() => setIsMouseDown(true)} onMouseUp={() => setIsMouseDown(false)} onMouseLeave={() => setIsMouseDown(false)}>
       
       {/* Floating Particles system */}
       {themeSlug === 'romantic' && (
@@ -1017,12 +1018,20 @@ useEffect(() => {
                     <circle cx="12" cy="12" r="3" fill="currentColor" />
                   </svg>
 
-                  <button 
-                    onClick={() => setIsLetterOpen(false)}
-                    className="absolute top-6 right-6 px-4 py-2 rounded-xl bg-zinc-900/5 hover:bg-zinc-900/10 border border-zinc-200/60 text-zinc-600 hover:text-zinc-900 text-xs font-bold transition-all cursor-pointer shadow-sm z-10"
-                  >
-                    Fold Envelope
-                  </button>
+                  <div className="absolute top-6 right-6 flex items-center gap-2 z-10 print:hidden">
+                    <button 
+                      onClick={() => window.print()}
+                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                    >
+                      Print Letter
+                    </button>
+                    <button 
+                      onClick={() => setIsLetterOpen(false)}
+                      className="px-4 py-2 rounded-xl bg-zinc-900/5 hover:bg-zinc-900/10 border border-zinc-200/60 text-zinc-600 hover:text-zinc-900 text-xs font-bold transition-all cursor-pointer shadow-sm"
+                    >
+                      Fold Envelope
+                    </button>
+                  </div>
 
                   {/* Letter calligraphy body */}
                   <div className="space-y-6 text-base md:text-lg leading-relaxed text-left text-zinc-800 font-serif italic pt-8 whitespace-pre-line">
@@ -1380,6 +1389,23 @@ useEffect(() => {
           </motion.button>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+
+      {/* Dedicated Print-only Section for A4 Print Output */}
+      <div className="hidden print:block print-layout-letter">
+        {initialMoment.custom_title && (
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-6 font-serif">
+            {initialMoment.custom_title}
+          </h1>
+        )}
+        <div className="whitespace-pre-line font-serif italic text-zinc-900 text-base md:text-lg leading-relaxed text-left">
+          {letterText}
+        </div>
+        <div className="text-right font-bold text-zinc-900 text-base mt-8 border-t border-zinc-200 pt-4 flex flex-col items-end">
+          <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-black block pb-1">Signed with devotion</span>
+          <span>— {initialMoment.sender_name}</span>
+        </div>
+      </div>
+    </>
   );
 }
