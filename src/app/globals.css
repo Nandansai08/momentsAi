@@ -201,3 +201,44 @@ body {
     cursor: auto;
   }
 }
+
+/* Print-specific layout styling for Issue #16 */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
+
+  /* Scoped print container adjustments */
+  .print-layout-letter {
+    display: block !important;
+    width: 100% !important;
+    max-width: 700px !important;
+    margin: 25mm auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #1a1a1a !important;
+    font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+    page-break-inside: auto;
+    word-wrap: break-word;
+    white-space: pre-line;
+  }
+
+  /* Remove all shadows, animations, and formatting artifacts for print output */
+  .print-layout-letter * {
+    background: transparent !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .print-layout-letter p,
+  .print-layout-letter div {
+    page-break-inside: avoid;
+  }
+}

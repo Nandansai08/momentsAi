@@ -300,12 +300,20 @@ export default function LivePreview() {
                     </div>
 
                     <div className="space-y-2">
-                      <div className="p-2.5 rounded-xl bg-black/5 border border-black/5 space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-zinc-900">Rhea</span>
-                          <span className="text-[8px] opacity-50 font-medium">Just now</span>
+                      <div className="p-2.5 rounded-xl bg-black/5 border border-black/5 flex gap-2.5 items-start text-left">
+                        <div 
+                          className="w-6.5 h-6.5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 border shadow-sm bg-pink-500/10 text-pink-600 border-pink-200/30 backdrop-blur-md dark:bg-pink-950/30 dark:text-pink-400 dark:border-pink-900/30"
+                          aria-label="Rhea's Avatar"
+                        >
+                          <span aria-hidden="true">R</span>
                         </div>
-                        <p className="text-[9px] opacity-80 font-medium">This is absolutely beautiful! Crying so much, love you!</p>
+                        <div className="flex-1 min-w-0 space-y-0.5">
+                          <div className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-zinc-900 dark:text-white truncate">Rhea</span>
+                            <span className="text-[8px] opacity-50 font-medium shrink-0 pl-2">Just now</span>
+                          </div>
+                          <p className="text-[9px] opacity-80 font-medium leading-relaxed">This is absolutely beautiful! Crying so much, love you!</p>
+                        </div>
                       </div>
                     </div>
 

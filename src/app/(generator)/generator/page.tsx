@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -20,10 +20,26 @@ import {
   FileText,
   Eye,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Star,
+  Camera,
+  MapPin
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { SlateBgVariant, SLATE_BACKGROUNDS } from '@/lib/utils';
+
+const TIMELINE_ICONS = ["Heart", "Star", "Camera", "Gift", "MapPin"];
+
+const getTimelineIconComponent = (iconName: string) => {
+  switch (iconName) {
+    case 'Heart': return Heart;
+    case 'Star': return Star;
+    case 'Camera': return Camera;
+    case 'Gift': return Gift;
+    case 'MapPin': return MapPin;
+    default: return null;
+  }
+};
 
 const occasionsList = [
   { id: 'birthday', label: 'Birthday', icon: Gift, color: 'from-pink-500 to-rose-500' },
@@ -265,6 +281,30 @@ export default function GeneratorPage() {
   const supabase = createClient();
 
   const [step, setStep] = useState(1);
+  const stepContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const focusFirstField = () => {
+      if (!stepContainerRef.current) return;
+      const firstInput = stepContainerRef.current.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input:not([type="hidden"]):not([type="file"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([disabled]), textarea:not([disabled])'
+      );
+      if (firstInput) {
+        firstInput.focus();
+      }
+    };
+
+    // Execute direct focus immediately
+    focusFirstField();
+
+    // Secondary fallback requestAnimationFrame to ensure focus holds after rendering completion
+    const animFrameId = requestAnimationFrame(focusFirstField);
+
+    return () => {
+      cancelAnimationFrame(animFrameId);
+    };
+  }, [step]);
+
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("Analyzing your memories...");
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -284,7 +324,14 @@ export default function GeneratorPage() {
   
   // Lists
   const [memoriesInput, setMemoriesInput] = useState('');
-  const [memories, setMemories] = useState<string[]>([]);
+  
+  type MemoryInput = {
+    description: string;
+    icon: string;
+  };
+
+  const [memories, setMemories] = useState<MemoryInput[]>([]);
+  const [selectedIcon, setSelectedIcon] = useState("Heart");
   const [achievements, setAchievements] = useState<string[]>([]);
 
   // Files
@@ -323,6 +370,16 @@ export default function GeneratorPage() {
   // Mobile preview layout overlay control
   const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMobilePreviewOpen) {
+        setIsMobilePreviewOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobilePreviewOpen]);
+
   // Client Auto-save draft loader
   useEffect(() => {
     try {
@@ -337,7 +394,12 @@ export default function GeneratorPage() {
           if (parsed.eventDate) setEventDate(parsed.eventDate);
           if (parsed.customTitle) setCustomTitle(parsed.customTitle);
           if (parsed.personalMessage) setPersonalMessage(parsed.personalMessage);
-          if (parsed.memories) setMemories(parsed.memories);
+          if (parsed.memories) {
+            const normalized = parsed.memories.map((m: string | MemoryInput) => 
+              typeof m === 'string' ? { description: m, icon: 'Heart' } : m
+            );
+            setMemories(normalized);
+          }
           if (parsed.achievements) setAchievements(parsed.achievements);
           if (parsed.themeId) setThemeId(parsed.themeId);
           if (
@@ -418,7 +480,7 @@ export default function GeneratorPage() {
       return;
     }
 
-    setMemories([...memories, trimmed]);
+    setMemories([...memories, { description: trimmed, icon: selectedIcon }]);
     setMemoriesInput('');
     setMemoryError(null);
   };
@@ -514,7 +576,8 @@ export default function GeneratorPage() {
         event_date: eventDate || null,
         custom_title: customTitle || null,
         personal_message: personalMessage || null,
-        favorite_memories: memories,
+        favorite_memories: memories.map(m => m.description),
+        favorite_memories_icons: memories.map(m => m.icon),
         special_moments: achievements,
         theme_slug: themeId,
         selected_sections: sections,
@@ -658,15 +721,22 @@ export default function GeneratorPage() {
               {memories.length === 0 ? (
                 <div className="text-[9px] opacity-60">Add favorite memories to compile a custom timeline story!</div>
               ) : (
-                memories.map((m, i) => (
-                  <div key={i} className="relative text-[10px]">
-                    <div className="absolute -left-[20px] top-0.5 w-[10px] h-[10px] rounded-full bg-white border border-zinc-200 flex items-center justify-center text-[6px]">
-                      ❤️
+                memories.map((m, i) => {
+                  const IconComp = getTimelineIconComponent(m.icon);
+                  return (
+                    <div key={i} className="relative text-[10px]">
+                      <div className="absolute -left-[20px] top-0.5 w-[10px] h-[10px] rounded-full bg-white border border-zinc-200 flex items-center justify-center text-zinc-500">
+                        {IconComp ? (
+                          <IconComp className="w-1.5 h-1.5 shrink-0" />
+                        ) : (
+                          '❤️'
+                        )}
+                      </div>
+                      <span className="font-bold">Memory #{i + 1}</span>
+                      <p className="text-[9px] opacity-75 leading-snug">{m.description}</p>
                     </div>
-                    <span className="font-bold">Memory #{i + 1}</span>
-                    <p className="text-[9px] opacity-75 leading-snug">{m}</p>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -717,8 +787,19 @@ export default function GeneratorPage() {
         {sections.guestbook && (
           <div className={`p-4 rounded-2.5xl ${currentThemeStyles.card} border space-y-2`}>
             <span className={`text-[8px] uppercase tracking-wider font-black ${currentThemeStyles.accentText}`}>Signings Wall</span>
-            <div className="p-2 rounded-lg bg-black/5 text-[9px] font-medium leading-relaxed">
-              <strong>Alex:</strong> Celebrating this beautiful milestone! Absolute legend.
+            <div className="p-2 rounded-xl bg-black/5 flex gap-2 items-start text-left">
+              <div 
+                className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[8px] shrink-0 border shadow-sm bg-violet-500/10 text-violet-600 border-violet-200/30 backdrop-blur-md dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-900/30"
+                aria-label="Alex's Avatar"
+              >
+                <span aria-hidden="true">A</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center text-[9px] font-bold">
+                  <span className="truncate">Alex</span>
+                </div>
+                <p className="text-[9px] opacity-80 font-medium leading-relaxed">Celebrating this beautiful milestone! Absolute legend.</p>
+              </div>
             </div>
           </div>
         )}
@@ -816,7 +897,7 @@ export default function GeneratorPage() {
           </div>
 
           {/* Interactive Stepper Wizard Form Box */}
-          <div className="bg-white p-7.5 rounded-[32px] border border-zinc-200/80 shadow-xl shadow-zinc-200/20 relative min-h-[460px] flex flex-col justify-between">
+          <div ref={stepContainerRef} className="bg-white p-7.5 rounded-[32px] border border-zinc-200/80 shadow-xl shadow-zinc-200/20 relative min-h-[460px] flex flex-col justify-between">
             <div className="space-y-6">
               
               {/* STEP 1: CHOOSE OCCASION */}
@@ -972,6 +1053,32 @@ export default function GeneratorPage() {
                   <div className="space-y-2.5">
                     <label htmlFor="memories-input" className="text-xs font-bold text-zinc-500 pl-0.5 uppercase tracking-wider block">{activeQuestions.memoriesLabel}</label>
                     <div className="flex gap-2">
+                      <div className="relative shrink-0">
+                        <select
+                          id="icon-picker"
+                          value={selectedIcon}
+                          onChange={(e) => setSelectedIcon(e.target.value)}
+                          className="appearance-none h-full pl-4 pr-9 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold cursor-pointer"
+                        >
+                          {TIMELINE_ICONS.map((icon) => {
+                            let emoji = '❤️';
+                            if (icon === 'Star') emoji = '⭐';
+                            else if (icon === 'Camera') emoji = '📷';
+                            else if (icon === 'Gift') emoji = '🎁';
+                            else if (icon === 'MapPin') emoji = '📍';
+                            return (
+                              <option key={icon} value={icon}>
+                                {emoji} {icon}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                          </svg>
+                        </div>
+                      </div>
                       <input
                         id="memories-input"
                         type="text"
@@ -984,7 +1091,7 @@ export default function GeneratorPage() {
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addMemory())}
                         aria-invalid={!!memoryError}
                         aria-describedby={memoryError ? "memory-error" : undefined}
-                        className="flex-1 px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none font-semibold"
+                        className="flex-1 px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200/80 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-semibold"
                       />
                       <button
                         type="button"
@@ -1006,17 +1113,21 @@ export default function GeneratorPage() {
 
                     {memories.length > 0 && (
                       <div className="flex flex-wrap gap-2 pt-1.5 max-h-36 overflow-y-auto pr-1">
-                        {memories.map((m, idx) => (
-                          <div 
-                            key={idx} 
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 text-violet-700 border border-violet-100 text-xs font-semibold"
-                          >
-                            <span className="truncate max-w-[200px]">{m}</span>
-                            <button type="button" onClick={() => removeMemory(idx)} className="text-violet-400 hover:text-red-500 shrink-0 cursor-pointer">
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        ))}
+                        {memories.map((m, idx) => {
+                          const IconComp = getTimelineIconComponent(m.icon);
+                          return (
+                            <div 
+                              key={idx} 
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 text-violet-700 border border-violet-100 text-xs font-semibold animate-in fade-in zoom-in-95 duration-150"
+                            >
+                              {IconComp && <IconComp className="w-3.5 h-3.5 shrink-0 text-violet-500" />}
+                              <span className="truncate max-w-[200px]">{m.description}</span>
+                              <button type="button" onClick={() => removeMemory(idx)} className="text-violet-400 hover:text-red-500 shrink-0 cursor-pointer">
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

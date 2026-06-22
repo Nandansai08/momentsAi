@@ -18,11 +18,16 @@ import {
   Mail,
   LoaderCircle,
   Volume,
-  ArrowUp
+  ArrowUp,
+  Star,
+  Camera,
+  Gift,
+  MapPin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
 import { formatDate, calculateReadTime, SLATE_BACKGROUNDS, SlateBgVariant } from '@/lib/utils';
+import { getInitials, getAvatarColorClass } from '@/lib/avatar';
 
 interface MomentData {
   id: string;
@@ -81,6 +86,7 @@ interface GuestbookItem {
   message: string;
   created_at: string;
   is_approved?: boolean;
+  avatar_url?: string | null;
 }
 
 interface Props {
@@ -220,6 +226,24 @@ function parseMusicEmbed(url: string | null | undefined) {
   };
 }
 
+const renderTimelineIcon = (iconName: string | undefined) => {
+  if (!iconName) return null;
+  switch (iconName) {
+    case 'Heart':
+      return <Heart className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />;
+    case 'Star':
+      return <Star className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />;
+    case 'Camera':
+      return <Camera className="w-3.5 h-3.5 text-primary shrink-0" />;
+    case 'Gift':
+      return <Gift className="w-3.5 h-3.5 text-primary shrink-0" />;
+    case 'MapPin':
+      return <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />;
+    default:
+      return iconName;
+  }
+};
+
 export default function MomentRenderClient({ initialMoment, initialMedia, initialGuestbook }: Props) {
   const supabase = createClient();
   const themeSlug = (initialMoment.themes?.slug || 'romantic') as keyof typeof themeStyles;
@@ -349,6 +373,28 @@ useEffect(() => {
       }
     };
   }, []);
+
+  // Escape key support to close lightbox view
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && activePhoto !== null) {
+        setActivePhoto(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePhoto]);
+
+  // Escape key support to close share showcase drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isShareOpen) {
+        setIsShareOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isShareOpen]);
 
   // Check for successful publish to trigger confetti & open share drawer
   useEffect(() => {
@@ -670,7 +716,8 @@ useEffect(() => {
 );
 }
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${style.bg} ${style.font} pb-24 relative overflow-x-hidden ${style.text} ${cursorClass}`} onMouseDown={() => setIsMouseDown(true)} onMouseUp={() => setIsMouseDown(false)} onMouseLeave={() => setIsMouseDown(false)}>
+    <>
+      <div className={`min-h-screen bg-gradient-to-b ${style.bg} ${style.font} pb-24 relative overflow-x-hidden ${style.text} ${cursorClass} print:hidden`} onMouseDown={() => setIsMouseDown(true)} onMouseUp={() => setIsMouseDown(false)} onMouseLeave={() => setIsMouseDown(false)}>
       
       {/* Floating Particles system */}
       {themeSlug === 'romantic' && (
@@ -995,12 +1042,20 @@ useEffect(() => {
                     <circle cx="12" cy="12" r="3" fill="currentColor" />
                   </svg>
 
-                  <button 
-                    onClick={() => setIsLetterOpen(false)}
-                    className="absolute top-6 right-6 px-4 py-2 rounded-xl bg-zinc-900/5 hover:bg-zinc-900/10 border border-zinc-200/60 text-zinc-600 hover:text-zinc-900 text-xs font-bold transition-all cursor-pointer shadow-sm z-10"
-                  >
-                    Fold Envelope
-                  </button>
+                  <div className="absolute top-6 right-6 flex items-center gap-2 z-10 print:hidden">
+                    <button 
+                      onClick={() => window.print()}
+                      className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-750 text-white text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                    >
+                      Print Letter
+                    </button>
+                    <button 
+                      onClick={() => setIsLetterOpen(false)}
+                      className="px-4 py-2 rounded-xl bg-zinc-900/5 hover:bg-zinc-900/10 border border-zinc-200/60 text-zinc-600 hover:text-zinc-900 text-xs font-bold transition-all cursor-pointer shadow-sm"
+                    >
+                      Fold Envelope
+                    </button>
+                  </div>
 
                   {/* Letter calligraphy body */}
                   <div className="space-y-6 text-base md:text-lg leading-relaxed text-left text-zinc-800 font-serif italic pt-8 whitespace-pre-line">
@@ -1038,7 +1093,7 @@ useEffect(() => {
                 >
                   {/* Glowing pulsing node */}
                   <div className="absolute -left-[37px] top-1 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs shadow-md transition-all group-hover:scale-110">
-                    {item.icon}
+                    {renderTimelineIcon(item.icon)}
                   </div>
                   
                   <div 
@@ -1225,12 +1280,30 @@ useEffect(() => {
             {/* List entries styled as note lists */}
             <div className="space-y-3.5 max-h-80 overflow-y-auto pr-2 scrollbar-none">
               {guestbook.map((entry: GuestbookItem, i: number) => (
-                <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 space-y-1 text-left relative overflow-hidden">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span>{entry.name}</span>
-                    <span className="opacity-55 text-[10px]">{formatDate(entry.created_at)}</span>
+                <div key={i} className="p-4 rounded-2xl bg-secondary/30 border border-border/40 text-left relative overflow-hidden flex gap-3.5 items-start">
+                  <div 
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border shadow-sm ${
+                      entry.avatar_url ? '' : getAvatarColorClass(entry.name)
+                    }`}
+                    aria-label={`${entry.name}'s Avatar`}
+                  >
+                    {entry.avatar_url ? (
+                      <img 
+                        src={entry.avatar_url} 
+                        alt="" 
+                        className="w-full h-full rounded-full object-cover" 
+                      />
+                    ) : (
+                      <span aria-hidden="true">{getInitials(entry.name)}</span>
+                    )}
                   </div>
-                  <p className="text-xs opacity-90 leading-relaxed text-left">{entry.message}</p>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex justify-between items-center text-xs font-bold">
+                      <span className="truncate">{entry.name}</span>
+                      <span className="opacity-55 text-[10px] shrink-0 pl-2">{formatDate(entry.created_at)}</span>
+                    </div>
+                    <p className="text-xs opacity-90 leading-relaxed text-left">{entry.message}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1358,6 +1431,23 @@ useEffect(() => {
           </motion.button>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+
+      {/* Dedicated Print-only Section for A4 Print Output */}
+      <div className="hidden print:block print-layout-letter">
+        {initialMoment.custom_title && (
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-6 font-serif">
+            {initialMoment.custom_title}
+          </h1>
+        )}
+        <div className="whitespace-pre-line font-serif italic text-zinc-900 text-base md:text-lg leading-relaxed text-left">
+          {letterText}
+        </div>
+        <div className="text-right font-bold text-zinc-900 text-base mt-8 border-t border-zinc-200 pt-4 flex flex-col items-end">
+          <span className="text-[10px] text-zinc-400 uppercase tracking-widest font-black block pb-1">Signed with devotion</span>
+          <span>— {initialMoment.sender_name}</span>
+        </div>
+      </div>
+    </>
   );
 }

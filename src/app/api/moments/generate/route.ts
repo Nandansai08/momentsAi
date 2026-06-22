@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       custom_title,
       personal_message,
       favorite_memories,
+      favorite_memories_icons,
       special_moments,
       theme_slug,
       selected_sections,
@@ -43,6 +44,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
     }
 
+    type LegacyMemory = string | { description?: string; icon?: string };
+
+    const parsedMemories: string[] = Array.isArray(favorite_memories)
+      ? (favorite_memories as LegacyMemory[]).map((m) => typeof m === 'string' ? m : (m?.description || ''))
+      : [];
+
+    const parsedIcons: string[] = Array.isArray(favorite_memories_icons)
+      ? favorite_memories_icons
+      : Array.isArray(favorite_memories)
+        ? (favorite_memories as LegacyMemory[]).map((m) => typeof m === 'object' && m?.icon ? m.icon : 'Heart')
+        : [];
+
     // Call Bedrock (or its sandbox generator) to obtain Claude 3.5 Sonnet content!
     const aiData = await generateMomentContent({
       occasion,
@@ -50,8 +63,24 @@ export async function POST(request: Request) {
       senderName: sender_name,
       relationship,
       personalMessage: personal_message,
-      favoriteMemories: favorite_memories,
+      favoriteMemories: parsedMemories,
       specialMoments: special_moments
+    });
+
+    interface TimelineItem {
+      title: string;
+      date: string;
+      description: string;
+      icon: string;
+    }
+
+    // Override each timeline item's icon with the user-selected icon by index
+    const customTimeline = aiData.ai_timeline?.map((item: TimelineItem, index: number) => {
+      const icon = parsedIcons[index];
+      return {
+        ...item,
+        icon: icon || item.icon,
+      };
     });
 
     // Create a unique clean URL slug
@@ -90,7 +119,7 @@ export async function POST(request: Request) {
         ai_title: aiData.ai_title,
         ai_story_narrative: aiData.ai_story_narrative,
         ai_letter: aiData.ai_letter,
-        ai_timeline: aiData.ai_timeline,
+        ai_timeline: customTimeline || aiData.ai_timeline,
         ai_quotes: aiData.ai_quotes,
         ai_poem: aiData.ai_poem,
 

@@ -294,22 +294,38 @@ export default function MyWebsitesPage() {
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-12 text-center rounded-[36px] border border-border bg-card shadow-xl max-w-xl mx-auto mt-6 space-y-6"
+          className="p-8 md:p-12 text-center rounded-[36px] border border-border/50 bg-card/45 dark:bg-zinc-900/35 shadow-xl shadow-border/5 dark:shadow-none backdrop-blur-md max-w-xl mx-auto mt-6 space-y-6 relative overflow-hidden"
         >
-          <div className="w-16 h-16 rounded-2xl bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto border border-violet-100 dark:border-violet-900/50 shadow-inner">
-            <Sparkles className="w-8 h-8 text-violet-500" />
+          {/* Ambient blurred gradient glows */}
+          <div className="absolute -top-24 -left-24 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none select-none" aria-hidden="true" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl pointer-events-none select-none" aria-hidden="true" />
+
+          {/* Decorative floating icons */}
+          <div className="absolute top-6 left-8 text-violet-500/10 dark:text-violet-400/10 pointer-events-none select-none" aria-hidden="true">
+            <Sparkles className="w-8 h-8" />
           </div>
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground">No Websites Created Yet</h3>
+          <div className="absolute bottom-10 right-10 text-pink-500/10 dark:text-pink-400/10 pointer-events-none select-none" aria-hidden="true">
+            <Sparkles className="w-10 h-10" />
+          </div>
+
+          {/* Upgraded focal point icon container */}
+          <div className="w-20 h-20 rounded-3xl bg-violet-600/10 dark:bg-violet-400/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto border border-violet-500/20 dark:border-violet-400/20 shadow-lg relative z-10">
+            <div className="absolute inset-0 bg-gradient-to-tr from-violet-600/20 to-pink-500/20 rounded-3xl blur-md opacity-50 pointer-events-none select-none" aria-hidden="true" />
+            <Sparkles className="w-10 h-10 text-violet-500 relative z-10" aria-hidden="true" />
+          </div>
+
+          <div className="space-y-2 relative z-10">
+            <h3 className="text-xl font-black text-foreground">No Moments Created Yet</h3>
             <p className="text-muted-foreground text-sm font-semibold max-w-sm mx-auto leading-relaxed">
-              Create a personalized, interactive tribute site for an anniversary, proposal, or birthday in under 10 seconds!
+              Start creating beautiful memory websites for birthdays, anniversaries, proposals, and life&apos;s most meaningful milestones.
             </p>
           </div>
+
           <Link 
             href="/generator" 
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-md hover:scale-102 hover:shadow-lg transition-all"
+            className="glowing-button inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-violet-600 to-pink-500 text-white font-bold shadow-md hover:shadow-lg hover:scale-102 transition-all text-sm shrink-0 cursor-pointer relative z-10"
           >
-            Create Your First Tribute
+            Create New Moment
             <Plus className="w-4.5 h-4.5" />
           </Link>
         </motion.div>
