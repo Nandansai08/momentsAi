@@ -1219,7 +1219,12 @@ useEffect(() => {
           <section className={`p-6 md:p-8 rounded-[32px] ${style.cardBg} border shadow-lg space-y-6`} style={{ boxShadow: `0 15px 35px -10px ${style.glowColor}` }}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-4">
               <div>
-                <h3 className="text-lg font-bold">Wishes & Guestbook</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold">Wishes & Guestbook</h3>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${style.accentBorder} ${style.subText} bg-secondary/60`}>
+                    {guestbook.length} {guestbook.length === 1 ? "Wish" : "Wishes"}
+                  </span>
+                </div>
                 <p className="text-xs text-muted-foreground mt-0.5">Leave your congratulations or sign the digital memory wall.</p>
               </div>
               
