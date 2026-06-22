@@ -1,129 +1,153 @@
 # Contributing to MomentsAI
 
-Thank you for your interest in contributing to MomentsAI! We welcome and appreciate contributions of all kinds, including bug fixes, new templates, feature proposals, documentation improvements, and UI/UX polish.
+Thanks for taking the time to contribute! MomentsAI is a community-driven project and every fix, theme, polish, doc tweak, or new idea is appreciated. This guide will get you from a fresh fork to a merged PR.
 
-Following these guidelines helps ensure a smooth, efficient, and welcoming contribution process for everyone.
-
----
-
-## Code of Conduct
-
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please report any violations or inappropriate behavior to **security@momentsai.dev**.
+By participating you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-## Contribution Workflow
+## Table of Contents
 
-We follow a standard fork-and-pull-request workflow:
+1. [Fork & Clone](#fork--clone)
+2. [Local Development](#local-development)
+3. [Branch Naming](#branch-naming)
+4. [Commit Message Format](#commit-message-format)
+5. [Running Tests & Linting](#running-tests--linting)
+6. [Pull Request Checklist](#pull-request-checklist)
+7. [Code Review Process](#code-review-process)
+8. [Reporting Bugs vs Requesting Features](#reporting-bugs-vs-requesting-features)
 
-1. **Fork** the repository to your own GitHub account.
-2. **Clone** your fork locally:
+---
+
+## Fork & Clone
+
+1. **Fork** this repo from the GitHub UI to your account.
+2. **Clone** your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/momentsAi.git
+   git clone https://github.com/<your-username>/momentsAi.git
    cd momentsAi
    ```
-3. **Configure the upstream remote**:
+3. **Add the upstream remote** so you can pull in latest changes:
    ```bash
    git remote add upstream https://github.com/Nandansai08/momentsAi.git
+   git fetch upstream
    ```
-4. **Create a feature branch** off `main` (see branch naming conventions below):
+4. **Sync your `main`** before starting:
    ```bash
-   git checkout -b feat/my-new-feature
+   git checkout main
+   git pull upstream main
    ```
-5. **Make your changes** and commit them using [Conventional Commits](#commit-message-conventions).
-6. **Ensure build & checks pass**:
-   ```bash
-   npm run lint
-   npx tsc --noEmit
-   ```
-7. **Push** your branch to your fork:
-   ```bash
-   git push origin feat/my-new-feature
-   ```
-8. **Open a Pull Request (PR)** against the `main` branch of the upstream repository, and fill out the Pull Request Template.
 
 ---
 
-## Local Development Setup
+## Local Development
 
-To set up the project locally, please read our detailed [Setup Guide](docs/setup.md). Below is a quick summary:
+Full setup lives in [`docs/setup.md`](docs/setup.md). Quick version:
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Set up your local environment file:
-   Copy `.env.example` to `.env.local` and fill in the required variables (Supabase URL, Anon Key, service role key, and Gemini API key).
-3. Start the Next.js development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) (or whichever port Next.js boots on) to see your app running.
-
----
-
-## Coding Standards & Conventions
-
-### Frontend & Styling
-* **Tailwind CSS & CSS**: We use Tailwind CSS v4 alongside Vanilla CSS variables for custom styling. Make sure to keep the theme warm, clean, and Light-Mode compatible. Avoid introducing direct inline styles; use Tailwind utility classes instead.
-* **Icons**: Use `lucide-react` for icons.
-* **Animations**: Use `framer-motion` for page transitions, interactive hover effects, and micro-animations to maintain a premium feel.
-* **Responsive Layouts**: Design mobile-first. Ensure all screens are fully responsive and look stunning on mobile displays.
-
-### Next.js Conventions
-* We use the **Next.js App Router** with nested directories.
-* Client components must include the `"use client";` directive at the top.
-* Ensure data-fetching is handled via server components where possible, or via standard client-side fetches interacting with `/api` routes.
-
----
-
-## Branch Naming Conventions
-
-Use lowercase, hyphen-separated branch names prefixed by the type of change:
-
-| Prefix | Description | Example |
-| ------ | ----------- | ------- |
-| `feat/` | A new feature or template | `feat/wax-seal-cosmic-template` |
-| `fix/` | A bug fix | `fix/google-oauth-redirect` |
-| `docs/` | Documentation changes | `docs/update-contributing` |
-| `refactor/` | Code refactoring (no functional changes) | `refactor/optimize-moment-rendering` |
-| `test/` | Adding or fixing tests | `test/add-generator-specs` |
-| `chore/` | Maintenance tasks (dependency updates, configuration) | `chore/update-postcss` |
-
----
-
-## Commit Message Conventions
-
-We follow the [Conventional Commits specification](https://www.conventionalcommits.org/):
-
-Format:
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer(s)]
+```bash
+npm install
+cp .env.example .env.local    # then fill in Supabase + (optional) AWS keys
+npm run dev                   # http://localhost:3001
 ```
 
-### Allowed Types:
-* **`feat`**: A new feature (e.g., `feat(templates): add luxury gold template for anniversaries`)
-* **`fix`**: A bug fix (e.g., `fix(auth): parse oauth callback errors in login form`)
-* **`docs`**: Documentation only changes (e.g., `docs(setup): update Supabase setup guide`)
-* **`style`**: Changes that do not affect the meaning of the code (formatting, white-space, semi-colons, etc.)
-* **`refactor`**: A code change that neither fixes a bug nor adds a feature (e.g., `refactor(utils): extract moment parser`)
-* **`perf`**: A code change that improves performance
-* **`test`**: Adding missing tests or correcting existing tests
-* **`chore`**: Changes to the build process or auxiliary tools and libraries (e.g., `chore(deps): update framer-motion`)
+You'll need a Supabase project with `supabase/schema.sql` applied. AWS Bedrock is optional — without credentials the AI generator falls back to a deterministic simulator so you can still develop UI without an AWS bill.
+
+---
+
+## Branch Naming
+
+Branch off `main`. Use lowercase, hyphen-separated names with one of the prefixes below:
+
+| Prefix       | Use For                                | Example                                |
+| ------------ | -------------------------------------- | -------------------------------------- |
+| `feat/`      | New feature, theme, template           | `feat/wax-seal-luxury-template`        |
+| `fix/`       | Bug fix                                | `fix/google-oauth-redirect`            |
+| `docs/`      | Docs-only change                       | `docs/clarify-bedrock-setup`           |
+| `chore/`     | Tooling, deps, config                  | `chore/update-eslint-9`                |
+| `refactor/`  | Non-functional code change             | `refactor/extract-letter-builder`      |
+| `test/`      | Test-only changes                      | `test/cover-moment-api-routes`         |
+| `perf/`      | Performance work                       | `perf/lazy-load-vinyl-player`          |
+
+---
+
+## Commit Message Format
+
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <short summary>
+
+<optional body — explain *why*, not *what*>
+
+<optional footer — BREAKING CHANGE, refs #123>
+```
+
+**Allowed types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `build`, `ci`.
+
+**Examples:**
+
+```
+feat(generator): add luxury-gold theme preset
+fix(auth): handle expired OAuth code on /auth/callback
+docs(setup): document Supabase storage bucket creation
+chore(deps): bump framer-motion to 12.41
+```
+
+Keep the summary under 72 characters and use the imperative mood ("add", not "added").
+
+---
+
+## Running Tests & Linting
+
+Before opening a PR, run every check the CI will run:
+
+```bash
+npm run lint           # ESLint (eslint.config.mjs)
+npx tsc --noEmit       # TypeScript type-check
+npm run build          # Make sure production build compiles
+```
+
+If you add new code paths, please cover them with tests in the relevant `__tests__` folder when applicable. UI changes should include before/after screenshots in the PR body.
 
 ---
 
 ## Pull Request Checklist
 
-Before submitting a PR, make sure it satisfies the following:
+When you open a PR, the template will ask you to confirm:
 
-- [ ] Code compiles without errors or warnings.
-- [ ] No hydration mismatch warnings are introduced in Next.js.
-- [ ] Responsive design works properly on mobile viewport dimensions.
-- [ ] The change does not introduce any breaking changes to current website templates.
-- [ ] You have run `npm run lint` and all lint rules pass.
-- [ ] Description and screenshots (if applicable) are included in the PR template.
+- [ ] Branch name follows the convention above
+- [ ] Commits follow Conventional Commits
+- [ ] `npm run lint` passes with zero warnings
+- [ ] `npx tsc --noEmit` passes
+- [ ] `npm run build` succeeds
+- [ ] No `console.log`, `// TODO` left behind without an issue link
+- [ ] No secrets, API keys, or Supabase service-role keys committed
+- [ ] Updated relevant docs (`README.md`, `docs/*`) when behavior changed
+- [ ] Added screenshots / Loom for UI changes
+- [ ] Self-reviewed the diff
+- [ ] Linked to an issue (`Closes #123`)
+
+PRs that touch RLS, auth, billing, or migrations require an extra reviewer.
+
+---
+
+## Code Review Process
+
+- **First response:** a maintainer will triage and respond within **2 business days**.
+- **Review depth:** small PRs (<200 LOC) usually get reviewed end-to-end in the first pass. Larger PRs may get a structural review first, then a detail pass.
+- **Iteration:** respond to comments by pushing new commits (don't force-push during review — it makes diffs hard to follow). Squash on merge is performed by the maintainer.
+- **Merging:** requires at least one approving review and all CI checks green. PRs touching `supabase/schema.sql`, `middleware.ts`, or `src/lib/bedrock/**` require two approvals.
+- **Stale PRs:** PRs without activity for 30 days will be politely pinged; 60 days and they may be closed (you can always reopen).
+
+---
+
+## Reporting Bugs vs Requesting Features
+
+- **Found a bug?** Open an issue using the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md). Include reproduction steps, expected vs actual behavior, and your environment (OS, browser, Node version).
+- **Have a feature idea?** Open an issue using the [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md). Lead with the **problem**, not the solution.
+- **Doc gap?** Use the [Documentation Request template](.github/ISSUE_TEMPLATE/documentation_request.md).
+- **Security vulnerability?** **Do not open a public issue.** Email **security@momentsai.dev** — see [SECURITY.md](SECURITY.md).
+
+---
+
+Thank you for helping make MomentsAI better. 💜

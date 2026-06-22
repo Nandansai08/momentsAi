@@ -1,35 +1,55 @@
 ---
-name: Bug Report
-about: Create a report to help us improve and fix issues in MomentsAI.
-title: 'bug: [Short description of the bug]'
-labels: 'bug'
-assignees: ''
+name: 🐛 Bug Report
+about: Report a bug or unexpected behavior in MomentsAI
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
 ---
 
 ## Description
-A clear and concise description of what the bug is.
+
+<!-- A clear, concise description of the bug. What did you expect to happen? What actually happened? -->
 
 ## Steps to Reproduce
-Steps to reproduce the behavior:
+
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+2. Click on '...'
+3. Fill in '...'
 4. See error
 
 ## Expected Behavior
-A clear and concise description of what you expected to happen.
+
+<!-- What you expected to happen. -->
 
 ## Actual Behavior
-A description of what actually happened (include error messages or stack traces if applicable).
+
+<!-- What actually happened. Include error messages, stack traces, or console output. -->
+
+```
+<paste stack trace or console output here>
+```
 
 ## Screenshots / Recording
-If applicable, add screenshots or screen recordings to help explain your problem.
 
-## System Environment
-- **Browser:** [e.g. Chrome, Safari, Firefox]
-- **Device:** [e.g. iPhone 15, MacBook Pro]
-- **OS:** [e.g. iOS, macOS, Windows, Ubuntu]
-- **MomentsAI Version:** [e.g. v0.1.0]
+<!-- Drag-and-drop screenshots or a short Loom / GIF. Especially helpful for UI bugs. -->
+
+## Environment
+
+| Field                      | Value                                 |
+| -------------------------- | ------------------------------------- |
+| OS                         | <!-- e.g. macOS 14.5, Windows 11 -->  |
+| Browser                    | <!-- e.g. Chrome 124, Safari 17 -->   |
+| Node version               | <!-- `node -v` -->                    |
+| npm version                | <!-- `npm -v` -->                     |
+| MomentsAI version / commit | <!-- e.g. v0.1.0 or commit SHA -->    |
+| Deployment                 | <!-- local / Amplify / Vercel -->     |
 
 ## Additional Context
-Add any other context about the problem here (e.g. local Supabase configuration, environment variables, logs).
+
+<!-- Anything else: related issues, recent changes, network conditions, Supabase logs, Bedrock errors. -->
+
+## Checklist
+
+- [ ] I searched [open and closed issues](https://github.com/Nandansai08/momentsAi/issues?q=is%3Aissue) for duplicates
+- [ ] I can reproduce this on the latest `main`
+- [ ] I have included the information above

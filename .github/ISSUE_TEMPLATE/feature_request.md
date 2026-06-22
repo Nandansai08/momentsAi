@@ -1,22 +1,41 @@
 ---
-name: Feature Request
-about: Propose a new feature, template, or integration for MomentsAI.
-title: 'feat: [Short description of the proposed feature]'
-labels: 'enhancement'
-assignees: ''
+name: ✨ Feature Request
+about: Propose a new feature, template, or integration for MomentsAI
+title: "[Feature]: "
+labels: ["enhancement", "feature-request", "needs-triage"]
+assignees: []
 ---
 
 ## Problem Statement
-Is your feature request related to a problem? Please describe. (e.g. "I'm frustrated when trying to...")
+
+<!-- What user problem does this solve? Who is affected? Lead with the pain, not the solution. -->
 
 ## Proposed Solution
-A clear and concise description of what you want to happen. Describe the feature, visual preset, or UI change you are proposing.
+
+<!-- Describe the feature you'd like. Be specific:
+     - Which page / component / API does it touch?
+     - What does the user experience look like?
+     - Any mockups, sketches, or references to similar products?
+-->
 
 ## Alternatives Considered
-A clear and concise description of any alternative solutions or workarounds you've considered.
 
-## Use Cases / Impact
-Who is this feature for? How will it improve the overall MomentsAI product or creator experience?
+<!-- What other approaches did you weigh? Why is the proposed one better? -->
 
 ## Additional Context
-Add any other context, designs, mockups, or examples about the feature request here.
+
+<!-- Links, screenshots, related issues, data, anything that helps the maintainers evaluate. -->
+
+## Priority
+
+<!-- Maintainers may re-label, but indicate the importance from your perspective. -->
+
+- [ ] `priority:low` — nice to have
+- [ ] `priority:medium` — would meaningfully improve the product
+- [ ] `priority:high` — blocking real users / major friction
+
+## Checklist
+
+- [ ] I searched [open and closed issues](https://github.com/Nandansai08/momentsAi/issues?q=is%3Aissue) for duplicates
+- [ ] This aligns with the [Roadmap](../../docs/roadmap.md)
+- [ ] I'd be willing to work on this myself (optional)
