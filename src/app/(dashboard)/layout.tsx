@@ -1,23 +1,25 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sparkles, 
-  LayoutDashboard, 
-  PlusCircle, 
-  BarChart3, 
-  CreditCard, 
-  Settings, 
-  LogOut, 
-  Menu, 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Sparkles,
+  LayoutDashboard,
+  PlusCircle,
+  BarChart3,
+  CreditCard,
+  Settings,
+  LogOut,
+  Menu,
   X,
-  ShieldAlert
-} from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import ThemeToggle from '@/components/ThemeToggle';
+  ShieldAlert,
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import ThemeToggle from "@/components/ThemeToggle";
+import Image from "next/image";
+import { getAvatarColorClass, getInitials } from "@/lib/avatar";
 
 export default function DashboardLayout({
   children,
@@ -33,19 +35,27 @@ export default function DashboardLayout({
     avatar_url?: string | null;
   }
 
-  const [profile, setProfile] = useState<DashboardUserProfile | null>(null);
+  const [profile, setProfile] = useState<DashboardUserProfile | null>({
+    full_name: "gfhb",
+    plan_type: "lcksjvda",
+    avatar_url: "",
+  });
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
           .single();
-        setProfile(data || { full_name: user.email?.split('@')[0], plan_type: 'free' });
+        setProfile(
+          data || { full_name: user.email?.split("@")[0], plan_type: "free" },
+        );
       }
     }
     loadProfile();
@@ -53,16 +63,16 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    router.push("/");
     router.refresh();
   };
 
   const navItems = [
-    { name: 'My Tributes', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Create Moment', href: '/generator', icon: PlusCircle },
-    { name: 'Analytics Board', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'Pro Subscriptions', href: '/dashboard/billing', icon: CreditCard },
-    { name: 'Studio Settings', href: '/dashboard/settings', icon: Settings },
+    { name: "My Tributes", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Create Moment", href: "/generator", icon: PlusCircle },
+    { name: "Analytics Board", href: "/dashboard/analytics", icon: BarChart3 },
+    { name: "Pro Subscriptions", href: "/dashboard/billing", icon: CreditCard },
+    { name: "Studio Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
   return (
@@ -73,15 +83,21 @@ export default function DashboardLayout({
           <div className="w-8.5 h-8.5 rounded-lg bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center shadow-md">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="font-extrabold text-base tracking-tight text-gradient-primary">MomentsAI</span>
+          <span className="font-extrabold text-base tracking-tight text-gradient-primary">
+            MomentsAI
+          </span>
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <button 
+          <button
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             className="p-2 rounded-xl border border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
           >
-            {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isMobileOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </div>
       </header>
@@ -93,7 +109,9 @@ export default function DashboardLayout({
             <div className="w-9.5 h-9.5 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center shadow-md group-hover:scale-103 transition-transform">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black tracking-tight text-gradient-primary">MomentsAI</span>
+            <span className="text-xl font-black tracking-tight text-gradient-primary">
+              MomentsAI
+            </span>
           </Link>
 
           <nav className="space-y-1.5 pt-4">
@@ -104,9 +122,9 @@ export default function DashboardLayout({
                   key={item.href}
                   href={item.href}
                   className={`flex items-center gap-3 px-4.5 py-3 rounded-2xl font-bold text-sm transition-all duration-200 relative group ${
-                    isActive 
-                      ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' 
-                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                 >
                   <item.icon className="w-4.5 h-4.5 shrink-0" />
@@ -122,7 +140,9 @@ export default function DashboardLayout({
           <div className="p-3.5 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 dark:border-amber-500/20 space-y-1">
             <div className="flex items-center gap-1.5 text-amber-600">
               <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Early-Access Mode</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Early-Access Mode
+              </span>
             </div>
             <p className="text-[9px] leading-normal text-muted-foreground font-semibold">
               Your lifetime Pro membership is fully active and synchronized!
@@ -130,17 +150,21 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center justify-between px-1.5 py-1">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Appearance</span>
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Appearance
+            </span>
             <ThemeToggle />
           </div>
 
           {profile && (
             <div className="flex items-center gap-3 px-1.5">
               <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0 shadow-sm">
-                {profile.full_name?.charAt(0).toUpperCase() || 'U'}
+                {profile.full_name?.charAt(0).toUpperCase() || "U"}
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-black text-foreground truncate leading-snug">{profile.full_name || 'Creator'}</p>
+                <p className="text-xs font-black text-foreground truncate leading-snug">
+                  {profile.full_name || "Creator"}
+                </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-[8px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-black uppercase tracking-widest leading-none">
                     Pro Member
@@ -164,18 +188,18 @@ export default function DashboardLayout({
       <AnimatePresence>
         {isMobileOpen && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
               className="md:hidden fixed inset-0 bg-black z-40"
             />
-            <motion.aside 
-              initial={{ x: '-100%' }}
+            <motion.aside
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="md:hidden fixed top-18 left-0 bottom-0 w-72 bg-card border-r border-border z-50 p-6 flex flex-col justify-between"
             >
               <nav className="space-y-1.5">
@@ -187,9 +211,9 @@ export default function DashboardLayout({
                       href={item.href}
                       onClick={() => setIsMobileOpen(false)}
                       className={`flex items-center gap-3 px-4.5 py-3.5 rounded-2xl font-bold text-sm transition-all ${
-                        isActive 
-                          ? 'bg-primary text-primary-foreground shadow-md' 
-                          : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                       }`}
                     >
                       <item.icon className="w-5 h-5 shrink-0" />
@@ -203,11 +227,29 @@ export default function DashboardLayout({
                 {profile && (
                   <div className="flex items-center gap-3 px-1.5">
                     <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0">
-                      {profile.full_name?.charAt(0).toUpperCase() || 'U'}
+                      {profile.avatar_url ? (
+                        <Image
+                          src={profile.avatar_url}
+                          alt={profile.full_name || "Avatar"}
+                          width={40}
+                          height={40}
+                          className="size-10 rounded-full object-cover border border-border"
+                        />
+                      ) : (
+                        <div
+                          className={`size-10 rounded-full flex items-center justify-center font-black border text-white shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
+                        >
+                          {getInitials(profile.full_name)}
+                        </div>
+                      )}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-foreground truncate">{profile.full_name || 'Creator'}</p>
-                      <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-black uppercase">Pro Member</span>
+                      <p className="text-sm font-bold text-foreground truncate">
+                        {profile.full_name || "Creator"}
+                      </p>
+                      <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-black uppercase">
+                        Pro Member
+                      </span>
                     </div>
                   </div>
                 )}
