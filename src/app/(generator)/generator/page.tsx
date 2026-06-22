@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -280,6 +280,30 @@ export default function GeneratorPage() {
   const supabase = createClient();
 
   const [step, setStep] = useState(1);
+  const stepContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const focusFirstField = () => {
+      if (!stepContainerRef.current) return;
+      const firstInput = stepContainerRef.current.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input:not([type="hidden"]):not([type="file"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([disabled]), textarea:not([disabled])'
+      );
+      if (firstInput) {
+        firstInput.focus();
+      }
+    };
+
+    // Execute direct focus immediately
+    focusFirstField();
+
+    // Secondary fallback requestAnimationFrame to ensure focus holds after rendering completion
+    const animFrameId = requestAnimationFrame(focusFirstField);
+
+    return () => {
+      cancelAnimationFrame(animFrameId);
+    };
+  }, [step]);
+
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState("Analyzing your memories...");
   const [memoryError, setMemoryError] = useState<string | null>(null);
@@ -834,7 +858,7 @@ export default function GeneratorPage() {
           </div>
 
           {/* Interactive Stepper Wizard Form Box */}
-          <div className="bg-white p-7.5 rounded-[32px] border border-zinc-200/80 shadow-xl shadow-zinc-200/20 relative min-h-[460px] flex flex-col justify-between">
+          <div ref={stepContainerRef} className="bg-white p-7.5 rounded-[32px] border border-zinc-200/80 shadow-xl shadow-zinc-200/20 relative min-h-[460px] flex flex-col justify-between">
             <div className="space-y-6">
               
               {/* STEP 1: CHOOSE OCCASION */}
