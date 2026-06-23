@@ -1,18 +1,18 @@
-import { SlateBgVariant } from '@/lib/utils';
+import { SlateBgVariant } from "@/lib/utils";
 
 export type OccasionType =
-  | 'birthday'
-  | 'anniversary'
-  | 'proposal'
-  | 'friendship'
-  | 'graduation'
-  | 'farewell'
-  | 'wedding'
-  | 'mothers_day'
-  | 'fathers_day'
-  | 'custom';
+  | "birthday"
+  | "anniversary"
+  | "proposal"
+  | "friendship"
+  | "graduation"
+  | "farewell"
+  | "wedding"
+  | "mothers_day"
+  | "fathers_day"
+  | "custom";
 
-export type PlanType = 'free' | 'pro' | 'business';
+export type PlanType = "free" | "pro" | "business";
 
 export interface Profile {
   id: string;
@@ -21,6 +21,12 @@ export interface Profile {
   plan_type: PlanType;
   created_at: string;
   updated_at: string;
+}
+
+export interface DashboardUserProfile {
+  full_name: string | null;
+  plan_type: string;
+  avatar_url?: string | null;
 }
 
 export interface ThemeConfig {
@@ -36,8 +42,15 @@ export interface ThemeConfig {
     title: string;
     body: string;
   };
-  particles: 'floating-hearts' | 'stars' | 'subtle-grid' | 'golden-dust' | 'balloons' | 'scratchy-grain' | 'none';
-  animationStyle: 'fade-in' | 'slide-up' | 'scale-up' | 'bounce';
+  particles:
+    | "floating-hearts"
+    | "stars"
+    | "subtle-grid"
+    | "golden-dust"
+    | "balloons"
+    | "scratchy-grain"
+    | "none";
+  animationStyle: "fade-in" | "slide-up" | "scale-up" | "bounce";
 }
 
 export interface Theme {
@@ -87,7 +100,7 @@ export interface Moment {
   user_id: string;
   slug: string;
   occasion: OccasionType;
-  
+
   // Custom metadata
   recipient_name: string;
   sender_name: string;
@@ -100,12 +113,12 @@ export interface Moment {
   future_goals: string[] | null;
   quotes: string[] | null;
   custom_notes: string | null;
-  
+
   // Theme options
   theme_id: string | null;
-  custom_colors: Partial<ThemeConfig['colors']> | null;
-  custom_fonts: Partial<ThemeConfig['fonts']> | null;
-  
+  custom_colors: Partial<ThemeConfig["colors"]> | null;
+  custom_fonts: Partial<ThemeConfig["fonts"]> | null;
+
   // AI generated options
   ai_title: string | null;
   ai_story_narrative: string | null;
@@ -113,7 +126,7 @@ export interface Moment {
   ai_timeline: TimelineEvent[] | null;
   ai_quotes: Quote[] | null;
   ai_poem: string | null;
-  
+
   // Configs
   selected_sections: SelectedSections;
   is_password_protected: boolean;
@@ -122,7 +135,7 @@ export interface Moment {
   music_url: string | null;
   effects: EffectsConfig;
   secret_message: string | null;
-  
+
   // Deployment metadata
   meta_title: string | null;
   meta_description: string | null;
@@ -130,7 +143,7 @@ export interface Moment {
   is_published: boolean;
   created_at: string;
   updated_at: string;
-  
+
   // Joined fields if loaded
   themes?: Theme;
   media?: Media[];
@@ -140,7 +153,7 @@ export interface Media {
   id: string;
   moment_id: string;
   user_id: string;
-  type: 'image' | 'video' | 'audio';
+  type: "image" | "video" | "audio";
   url: string;
   public_id: string | null;
   caption: string | null;
@@ -187,7 +200,7 @@ export interface Subscription {
   razorpay_subscription_id: string | null;
   razorpay_order_id: string | null;
   plan_type: PlanType;
-  status: 'active' | 'pending' | 'cancelled' | 'expired';
+  status: "active" | "pending" | "cancelled" | "expired";
   current_period_start: string | null;
   current_period_end: string | null;
   created_at: string;

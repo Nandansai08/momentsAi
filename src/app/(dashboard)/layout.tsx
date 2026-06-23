@@ -18,8 +18,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import ThemeToggle from "@/components/ThemeToggle";
-import Image from "next/image";
-import { getAvatarColorClass, getInitials } from "@/lib/avatar";
+import { DashboardUserProfile } from "@/types";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function DashboardLayout({
   children,
@@ -29,17 +29,8 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
-  interface DashboardUserProfile {
-    full_name: string | null;
-    plan_type: string;
-    avatar_url?: string | null;
-  }
 
-  const [profile, setProfile] = useState<DashboardUserProfile | null>({
-    full_name: "gfhb",
-    plan_type: "lcksjvda",
-    avatar_url: "",
-  });
+  const [profile, setProfile] = useState<DashboardUserProfile | null>(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -158,23 +149,7 @@ export default function DashboardLayout({
 
           {profile && (
             <div className="flex items-center gap-3 px-1.5">
-              <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0 shadow-sm">
-                {profile.avatar_url ? (
-                  <Image
-                    src={profile.avatar_url}
-                    alt={profile.full_name || "Avatar"}
-                    width={40}
-                    height={40}
-                    className="size-10 rounded-full object-cover border border-border"
-                  />
-                ) : (
-                  <div
-                    className={`size-10 rounded-full flex items-center justify-center font-black border text-white shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
-                  >
-                    {getInitials(profile.full_name)}
-                  </div>
-                )}
-              </div>
+              <UserAvatar profile={profile} />
               <div className="overflow-hidden">
                 <p className="text-xs font-black text-foreground truncate leading-snug">
                   {profile.full_name || "Creator"}
@@ -240,23 +215,7 @@ export default function DashboardLayout({
               <div className="space-y-4 pt-6 border-t border-border">
                 {profile && (
                   <div className="flex items-center gap-3 px-1.5">
-                    <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0">
-                      {profile.avatar_url ? (
-                        <Image
-                          src={profile.avatar_url}
-                          alt={profile.full_name || "Avatar"}
-                          width={40}
-                          height={40}
-                          className="size-10 rounded-full object-cover border border-border"
-                        />
-                      ) : (
-                        <div
-                          className={`size-10 rounded-full flex items-center justify-center font-black border text-white shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
-                        >
-                          {getInitials(profile.full_name)}
-                        </div>
-                      )}
-                    </div>
+                    <UserAvatar profile={profile} />
                     <div>
                       <p className="text-sm font-bold text-foreground truncate">
                         {profile.full_name || "Creator"}
