@@ -159,7 +159,21 @@ export default function DashboardLayout({
           {profile && (
             <div className="flex items-center gap-3 px-1.5">
               <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0 shadow-sm">
-                {profile.full_name?.charAt(0).toUpperCase() || "U"}
+                {profile.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.full_name || "Avatar"}
+                    width={40}
+                    height={40}
+                    className="size-10 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div
+                    className={`size-10 rounded-full flex items-center justify-center font-black border text-white shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
+                  >
+                    {getInitials(profile.full_name)}
+                  </div>
+                )}
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-black text-foreground truncate leading-snug">
