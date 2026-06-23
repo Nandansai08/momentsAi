@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { getAvatarColorClass, getInitials } from "@/lib/avatar";
 import { DashboardUserProfile } from "@/types";
@@ -31,7 +31,10 @@ export default function UserAvatar({ profile }: UserAvatarProps) {
 
   const shouldShowImage = isValidUrl(avatarUrl) && !hasImageError;
   return (
-    <div className="w-10 h-10 rounded-full bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 flex items-center justify-center font-black border border-violet-100 dark:border-violet-900/50 shrink-0">
+    <div
+      key={avatarUrl || 'no-avatar'}
+      className="w-10 h-10 rounded-full flex items-center justify-center font-black shrink-0"
+    >
       {shouldShowImage ? (
         <Image
           src={avatarUrl}
@@ -50,7 +53,7 @@ export default function UserAvatar({ profile }: UserAvatarProps) {
         <div
           role="img"
           aria-label={profile.full_name || "User avatar"}
-          className={`size-10 rounded-full flex items-center justify-center font-black border text-white shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
+          className={`size-10 rounded-full flex items-center justify-center font-black border shrink-0 shadow-sm ${getAvatarColorClass(profile.full_name)}`}
         >
           {getInitials(profile.full_name)}
         </div>
