@@ -20,7 +20,7 @@
     "next": "16.2.10",
     "razorpay": "^2.9.8",
     "react": "19.2.8",
-    "react-dom": "19.2.7",
+    "react-dom": "19.2.8",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
