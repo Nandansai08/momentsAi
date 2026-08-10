@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.1100.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.1105.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",
     "canvas-confetti": "^1.9.4",
